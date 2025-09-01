@@ -1,0 +1,241 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+    ADMIN
+    VOLUNTARY
+    COLLABORATOR
+    ONG
+}
+
+enum ContributionType {
+  PRESENCIAL
+  REMOTO
+  DOACAO
+  SUPORTE_TECNICO
+  OUTRO
+}
+
+enum AssociateStatus {
+  INVITE_PENDING_ONG_TO_USER // 1. Convite enviado da ONG, aguardando resposta do usuário
+  REQUEST_PENDING_USER_TO_ONG // 2. Solicitação enviada do usuário, aguardando resposta da ONG (para Projetos)
+  ACCEPTED // 3. Aceito (final)
+  REJECTED_BY_USER // 4. Rejeitado pelo usuário convidado
+  REJECTED_BY_ONG // 5. Rejeitado pela ONG (para solicitações de projeto)
+}
+
+model Images {
+  id            Int         @id @default(autoincrement())
+  content       String?
+  caption       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  post          Posts?      @relation(fields: [postId], references: [id])
+  postId        Int?
+}
+
+model Likes {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  user          Users?      @relation(fields: [userId], references: [id])
+  userId        Int?
+  ongId         Int?
+  ong           Ongs?       @relation(fields: [ongId], references: [id])
+  post          Posts?      @relation(fields: [postId], references: [id])
+  postId        Int?
+}
+
+model Comments {
+  id            Int         @id @default(autoincrement())
+  description   String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          Users?      @relation(fields: [userId], references: [id])
+  userId        Int?
+  ong           Ongs?       @relation(fields: [ongId], references: [id])
+  ongId         Int?
+  post          Posts?      @relation(fields: [postId], references: [id])
+  postId        Int?
+}
+
+model Posts {
+  id            Int         @id @default(autoincrement())
+  description   String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          Users?      @relation(fields: [userId], references: [id])
+  userId        Int?
+  ong           Ongs?       @relation(fields: [ongId], references: [id])
+  ongId         Int?        
+  project       Projects?   @relation(fields: [projectId], references: [id])
+  projectId     Int?
+  images        Images[]
+  likes         Likes[]
+  comments      Comments[]
+  activities    Activities[]
+  tags          Tags[]
+}
+
+model Activities {
+  id            Int         @id @default(autoincrement())
+  description   String
+  createdAt     DateTime    @default(now())
+  user          Users?      @relation(fields: [userId], references: [id])
+  userId        Int?
+  ong           Ongs?       @relation(fields: [ongId], references: [id])
+  ongId         Int?
+  post          Posts?      @relation(fields: [postId], references: [id])
+  postId        Int?
+  project       Projects?   @relation(fields: [projectId], references: [id])
+  projectId     Int?
+}
+
+model Tags {
+  id            Int         @id @default(autoincrement())
+  name          String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          Users?      @relation(fields: [userId], references: [id])
+  userId        Int?
+  ong           Ongs?       @relation(fields: [ongId], references: [id])
+  ongId         Int?
+  post          Posts?      @relation(fields: [postId], references: [id])
+  postId        Int?
+}
+
+model Users {
+  id            Int             @id @default(autoincrement())
+  name          String 
+  email         String          @unique
+  password      String
+  location      String
+  views         Int             @default(0)
+  connections   Int             @default(0)
+  role          Role            @default(ADMIN)
+  profileImage  String?
+  coverImage    String?
+  description   String?
+  skills        String[]
+  industry      String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  posts         Posts[]
+  likes         Likes[]
+  comments      Comments[]
+  activity      Activities[]
+  ong           Ongs?           @relation(fields: [ongId], references: [id])
+  ongId         Int?
+  tags          Tags[]
+  contributions Contribution[]
+  associatedOngs AssociateUserONG[]
+  associatedProjects UserAssociateProject[]
+}
+
+model Ongs {
+  id                      Int         @id @default(autoincrement())
+  nameONG                 String
+  socialName              String
+  cnpj                    String      @unique
+  password                String
+  foundationDate          DateTime
+  role                    Role       @default(ONG)
+  area                    String?
+  goals                   String?
+  cep                     String?
+  street                  String?
+  number                  String?
+  complement              String?
+  city                    String?
+  district                String?
+  state                   String?
+  cellphone               String?
+  emailONG                String      @unique
+  socialMedia             String?
+  nameLegalGuardian       String
+  cpfLegalGuardian        String?
+  rgLegalGuardian         String?
+  cellphoneLegalGuardian  String?
+  description             String?
+  profileImage            String?
+  coverImage              String?
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+  users                   Users[]
+  projects                Projects[]
+  tags                    Tags[]
+  contributions           Contribution[]
+  posts                   Posts[]
+  activities              Activities[]
+  likes                   Likes[]
+  comments                Comments[]
+  associatedOngs AssociateUserONG[]
+}
+
+model Projects {
+  id            Int             @id @default(autoincrement())
+  name          String 
+  description   String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  ong           Ongs            @relation(fields: [ongId], references: [id])
+  ongId         Int
+  complementImages String[]
+  posts         Posts[]
+  activities    Activities[]
+  additionalInfo String?
+  projectImage   String?
+  contributionProject String[]
+  associatedProjects UserAssociateProject[]
+}
+model Contribution {
+  id             Int       @id @default(autoincrement())
+  user           Users     @relation(fields: [userId], references: [id])
+  userId         Int
+  name           String    // Nome da ação/projeto
+  ongName        String    // Nome da ONG (mesmo que não esteja cadastrada no sistema)
+  ong            Ongs?     @relation(fields: [ongId], references: [id])
+  ongId          Int?      // ID da ONG cadastrada (opcional)
+  date           DateTime
+  type           ContributionType
+  description    String
+  hours          Int
+  location       String
+  rating         Int?      // nota da ONG (1 a 5)
+  feedback       String?   // comentário da ONG
+  createdAt      DateTime  @default(now())
+}
+
+model AssociateUserONG {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  ongId     Int
+  status    AssociateStatus
+  rejectionReason String?
+
+  user      Users @relation(fields: [userId], references: [id])
+  ong       Ongs @relation(fields: [ongId], references: [id])
+
+  @@unique([userId, ongId]) // Um usuário só pode ter uma solicitação/convite/associação com uma ONG
+  @@index([userId])
+  @@index([ongId])
+}
+
+model UserAssociateProject {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  projectId Int
+  status    AssociateStatus // Status da solicitação (request_pending_user_to_ong, accepted, rejected_by_ong)
+  rejectionReason String?
+
+  user    Users     @relation(fields: [userId], references: [id])
+  project Projects  @relation(fields: [projectId], references: [id])
+
+  @@index([userId])
+  @@index([projectId])
+}

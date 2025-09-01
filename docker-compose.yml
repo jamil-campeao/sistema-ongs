@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:17.4
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: user
+      POSTGRES_DB: projeto_software
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    container_name: backend_container
+    environment:
+      DATABASE_URL: "postgresql://user:user@postgres:5432/projeto_software?schema=public"
+      JWT_SECRET: "37 bv6sWlL!%w*3eXejSINfzF)(F.{;s"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    command: >
+      sh -c "
+      npx prisma migrate deploy &&
+      npx prisma generate &&
+      npm run start
+      "
+
+
+
+  
+  frontend:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://backend:3000/api/v1"
+    container_name: frontend_container
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
