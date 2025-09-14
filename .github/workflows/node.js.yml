@@ -1,45 +1,44 @@
 name: CI Build
 
-# Define quando o workflow deve rodar.
 on:
-  # Roda quando houver um push para a branch 'main' ou 'develop'.
   push:
     branches: [ "main", "develop" ]
-  # Roda também quando um pull request for aberto para a branch 'main' ou 'develop'.
   pull_request:
     branches: [ "main", "develop" ]
 
-# Define os "trabalhos" (jobs) que o workflow vai executar.
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # Os passos (steps) que serão executados sequencialmente.
     steps:
       # 1. Faz o download do seu código para a máquina virtual.
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Configura a versão do Node.js que seu projeto usa.
+      # 2. Configura a versão do Node.js e o cache para NPM e Yarn.
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20' # Recomendo usar a versão 20 LTS, mas a 22 também funciona
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
 
-      # 3. Instala as dependências do Backend.
+      # 3. Instala as dependências do Backend com NPM.
       - name: Install Backend Dependencies
-        run: |
-          cd backend
-          npm install
+        working-directory: ./backend
+        run: npm ci
 
-      # 4. Instala as dependências do Frontend.
+      # 4. Instala as dependências do Frontend com Yarn.
       - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm install --global yarn
+        working-directory: ./frontend
+        run: yarn install --frozen-lockfile
 
-      # 5. Roda o Linter no Frontend para verificar a qualidade do código.
+      # 5. Roda o Linter no Frontend.
       - name: Run Linter
-        run: |
-          cd frontend
-          npm run lint
+        working-directory: ./frontend
+        run: yarn lint
+
+      # 6. (Recomendado) Faz o build do projeto Frontend para garantir que não há erros.
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: yarn build
