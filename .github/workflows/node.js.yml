@@ -1,0 +1,45 @@
+name: CI Build
+
+# Define quando o workflow deve rodar.
+on:
+  # Roda quando houver um push para a branch 'main' ou 'develop'.
+  push:
+    branches: [ "main", "develop" ]
+  # Roda também quando um pull request for aberto para a branch 'main' ou 'develop'.
+  pull_request:
+    branches: [ "main", "develop" ]
+
+# Define os "trabalhos" (jobs) que o workflow vai executar.
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # Os passos (steps) que serão executados sequencialmente.
+    steps:
+      # 1. Faz o download do seu código para a máquina virtual.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configura a versão do Node.js que seu projeto usa.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # 3. Instala as dependências do Backend.
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm install
+
+      # 4. Instala as dependências do Frontend.
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install --global yarn
+
+      # 5. Roda o Linter no Frontend para verificar a qualidade do código.
+      - name: Run Linter
+        run: |
+          cd frontend
+          npm run lint
