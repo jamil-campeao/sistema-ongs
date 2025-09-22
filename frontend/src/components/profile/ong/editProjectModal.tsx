@@ -7,7 +7,7 @@ interface EditProjectModalProps {
   onClose: () => void;
   onSave: (projectData: ProjectData) => Promise<void>;
   initialData: ProjectData;
-  type: String;
+  type: string;
 };
 
 export interface ProjectData {

@@ -8,7 +8,7 @@ interface EditContributionModalProps {
   onSave: (contributionData: ContributionData) => Promise<void>;
   onDelete: (contributionData: ContributionData) => Promise<void>;
   initialData: ContributionData;
-  type: String;
+  type: string;
   canDelete: Boolean
 }
 
