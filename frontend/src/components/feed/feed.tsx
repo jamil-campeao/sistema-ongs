@@ -447,7 +447,7 @@ async function handleLike(postId: number) {
       {posts.map((post) => {
         // 1. Identificar o autor do post e padronizar os dados
         let postAuthor: {
-          id: Number;
+          id: number;
           name: string;
           profileImage?: string | null;
           city?: string;
