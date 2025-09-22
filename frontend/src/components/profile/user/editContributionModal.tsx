@@ -9,7 +9,7 @@ interface EditContributionModalProps {
   onDelete: (contributionData: ContributionData) => Promise<void>;
   initialData: ContributionData;
   type: string;
-  canDelete: Boolean
+  canDelete: boolean
 }
 
 export interface ContributionData {
