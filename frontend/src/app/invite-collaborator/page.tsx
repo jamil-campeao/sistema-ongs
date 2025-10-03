@@ -47,7 +47,7 @@ export default function InviteResponsePage() {
   useEffect(() => {
     const idFromUrl = searchParams.get("inviteId");
     if (idFromUrl) {
-      setInviteId(parseInt(idFromUrl));
+      setInviteId(Number.parseInt(idFromUrl));
     } else {
       setError("ID do convite não encontrado na URL.");
       setIsLoading(false);

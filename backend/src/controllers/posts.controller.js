@@ -102,7 +102,7 @@ export const getPostByID = async (req, res) => {
     try {
         const { id } = req.params;
         const post = await prisma.posts.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             select: {
                 id: true,
                 description: true,
@@ -285,7 +285,7 @@ export const postLike = async (req, res) => {
     }
 
     let likeData = {
-        postId: parseInt(postId),
+        postId: Number.parseInt(postId),
     };
 
     if (tipo !== "ONG") {
@@ -299,11 +299,11 @@ export const postLike = async (req, res) => {
         let existingLike;
         if (tipo !== "ONG") {
             existingLike = await prisma.likes.findFirst({
-                where: { userId: id, postId: parseInt(postId) },
+                where: { userId: id, postId: Number.parseInt(postId) },
             });
         } else {
             existingLike = await prisma.likes.findFirst({
-                where: { ongId: id, postId: parseInt(postId) },
+                where: { ongId: id, postId: Number.parseInt(postId) },
             });
         }
 
@@ -384,7 +384,7 @@ export const postLike = async (req, res) => {
                 // O userId ou ongId da activity deve ser de QUEM DEU O LIKE, não do autor do post.
                 userId: tipo !== "ONG" ? id : null, // Se for usuário, preenche userId, senão null
                 ongId: tipo === "ONG" ? id : null, // Se for ONG, preenche ongId, senão null
-                postId: parseInt(postId) // O ID do post curtido
+                postId: Number.parseInt(postId) // O ID do post curtido
             }
         });
 
@@ -409,13 +409,13 @@ export const postComment =  async (req, res) => {
     try {
         const data = {
             description: description,
-            postId: parseInt(postId)
+            postId: Number.parseInt(postId)
         };
 
         if (tipo !== "ONG") {
-            data.userId = parseInt(id);
+            data.userId = Number.parseInt(id);
         } else {
-            data.ongId = parseInt(id);
+            data.ongId = Number.parseInt(id);
         }
 
         const createComment = await prisma.comments.create({ data });
@@ -489,7 +489,7 @@ export const postComment =  async (req, res) => {
                 // O userId ou ongId da activity deve ser de QUEM DEU O LIKE, não do autor do post.
                 userId: tipo !== "ONG" ? id : null, // Se for usuário, preenche userId, senão null
                 ongId: tipo === "ONG" ? id : null, // Se for ONG, preenche ongId, senão null
-                postId: parseInt(postId) // O ID do post curtido
+                postId: Number.parseInt(postId) // O ID do post curtido
             }
         });
 
@@ -507,7 +507,7 @@ export const putPostByID = async (req, res) => {
         const { id } = req.params;
         const { description, userId, projectId, images, likes, comments, activities, tags } = req.body;
         const post = await prisma.posts.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             include: {
                 images: true,
                 likes: true,
@@ -526,7 +526,7 @@ export const putPostByID = async (req, res) => {
             ? tags.filter((tag) => !post.tags.some(existingTag => existingTag.name === tag.name))
             : [];
         const updatedPost = await prisma.posts.update({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             data: {
                 description,
                 userId,
@@ -599,14 +599,14 @@ export const putCommentByID = async (req, res) => {
         const { commentId } = req.params;
         const { description } = req.body;
        
-        const post = await prisma.posts.findUnique({ where: { id: parseInt(postId) }});
-        const comment = await prisma.comments.findUnique({ where: { id: parseInt(commentId) }});
+        const post = await prisma.posts.findUnique({ where: { id: Number.parseInt(postId) }});
+        const comment = await prisma.comments.findUnique({ where: { id: Number.parseInt(commentId) }});
         if (!post || !comment) {
             return res.status(404).json({ error: "Post ou Comentário não encontrado" });
         }
         
         const updateComment = await prisma.comments.update({
-            where: { id: parseInt(commentId) },
+            where: { id: Number.parseInt(commentId) },
             data: {
                 description,
             },
@@ -629,11 +629,11 @@ export const putCommentByID = async (req, res) => {
 export const deletePostByID = async (req, res) => {
     try {
         const { id } = req.params;
-        const post = await prisma.posts.findUnique({ where: { id: parseInt(id) } });
+        const post = await prisma.posts.findUnique({ where: { id: Number.parseInt(id) } });
         if (!post) {
             return res.status(404).json({ error: "Post não encontrado" });
         }
-        await prisma.posts.delete({ where: { id: parseInt(id) } });
+        await prisma.posts.delete({ where: { id: Number.parseInt(id) } });
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar Post" });
@@ -645,13 +645,13 @@ export const deleteLikeByID =  async (req, res) => {
         const { postId } = req.params;
         const { likeId } = req.params;
 
-        const post = await prisma.posts.findUnique({ where: { id: parseInt(postId) }});
-        const like = await prisma.likes.findUnique({ where: { id: parseInt(likeId) }});
+        const post = await prisma.posts.findUnique({ where: { id: Number.parseInt(postId) }});
+        const like = await prisma.likes.findUnique({ where: { id: Number.parseInt(likeId) }});
         if (!post || !like) {
             return res.status(404).json({ error: "Post ou Like não encontrado" });
         }
 
-        await prisma.likes.delete({ where: { id: parseInt(likeId) } });
+        await prisma.likes.delete({ where: { id: Number.parseInt(likeId) } });
         res.status(204).json({ message: "Like deletado com sucesso"});
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar like" });
@@ -663,13 +663,13 @@ export const deleteCommentByID =  async (req, res) => {
         const { postId } = req.params;
         const { commentId } = req.params;
 
-        const post = await prisma.posts.findUnique({ where: { id: parseInt(postId) }});
-        const comment = await prisma.comments.findUnique({ where: { id: parseInt(commentId) }});
+        const post = await prisma.posts.findUnique({ where: { id: Number.parseInt(postId) }});
+        const comment = await prisma.comments.findUnique({ where: { id: Number.parseInt(commentId) }});
         if (!post || !comment) {
             return res.status(404).json({ error: "Post ou comentário não encontrado" });
         }
 
-        await prisma.comments.delete({ where: { id: parseInt(commentId) } });
+        await prisma.comments.delete({ where: { id: Number.parseInt(commentId) } });
         res.status(204).json({ message: "Comentário deletado com sucesso"});
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar like" });
