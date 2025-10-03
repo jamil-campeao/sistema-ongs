@@ -12,7 +12,7 @@ export const getMe = async (req, res) => {
         const { id } = req.user;
 
         const users = await prisma.users.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             select: {
                 id: true,
                 name: true,
@@ -105,7 +105,7 @@ export const getUserByID = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await prisma.users.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             select: {
                 id: true,
                 name: true,
@@ -191,7 +191,7 @@ export const putUser = async (req, res) => {
         const { id } = req.user;
         const { name, email, password, location, role, description, industry, tags, skills, profileImage, coverImage } = req.body;
         
-        const user = await prisma.users.findUnique({ where: { id: parseInt(id) }});
+        const user = await prisma.users.findUnique({ where: { id: Number.parseInt(id) }});
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
@@ -211,7 +211,7 @@ export const putUser = async (req, res) => {
         }
         
         const updatedUser = await prisma.users.update({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             data: updateData,
         });
         const { password: _, ...userWithoutPassword } = updatedUser;
@@ -225,11 +225,11 @@ export const putUser = async (req, res) => {
 export const deleteUserByID = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await prisma.users.findUnique({ where: { id: parseInt(id) } });
+        const user = await prisma.users.findUnique({ where: { id: Number.parseInt(id) } });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        await prisma.users.delete({ where: { id: parseInt(id) } });
+        await prisma.users.delete({ where: { id: Number.parseInt(id) } });
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar usuário" });

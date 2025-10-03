@@ -11,7 +11,7 @@ export const getFilterProjects = async (req, res) => {
         if (description) filters.description = { contains: description };
         if (createdAt) filters.createdAt = new Date(createdAt);
         if (updatedAt) filters.updatedAt = new Date(updatedAt);
-        if (ongID) filters.ongID = parseInt(ongID);
+        if (ongID) filters.ongID = Number.parseInt(ongID);
         if (tags) filters.tags = { hasSome: tags.split(",") };
 
         const projects = await prisma.projects.findMany({
@@ -60,9 +60,9 @@ export const getFilterActivities = async (req, res) => {
         const filters = {};
         if (description) filters.description = { contains: description };
         if (createdAt) filters.createdAt = new Date(createdAt);
-        if (userID) filters.userID = parseInt(userID);
-        if (projectID) filters.projectID = parseInt(projectID);
-        if (postID) filters.postID = parseInt(postID);
+        if (userID) filters.userID = Number.parseInt(userID);
+        if (projectID) filters.projectID = Number.parseInt(projectID);
+        if (postID) filters.postID = Number.parseInt(postID);
 
         const activities = await prisma.activities.findMany({
             where: filters,
@@ -108,8 +108,8 @@ export const getFilterPosts = async (req, res) => {
         if (description) filters.description = { contains : description };
         if (createdAt) filters.createdAt = new Date(createdAt);
         if (updatedAt) filters.updatedAt = new Date(updatedAt);
-        if (userID) filters.userID = parseInt(userID);
-        if (projectID) filters.projectID = parseInt(projectID);
+        if (userID) filters.userID = Number.parseInt(userID);
+        if (projectID) filters.projectID = Number.parseInt(projectID);
 
         const posts = await prisma.posts.findMany({
             where: filters,

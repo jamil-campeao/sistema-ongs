@@ -33,7 +33,7 @@ export const getProjectsByID = async (req, res) => {
     try {
         const { id } = req.params;
         const project = await prisma.projects.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             select: {
                 id: true,
                 name: true,
@@ -76,7 +76,7 @@ export const postProject =  async (req, res) => {
     const data = {
         name,
         description,
-        ongId: parseInt(ongId)
+        ongId: Number.parseInt(ongId)
     }
 
     if (complementImages) data.complementImages = complementImages;
@@ -110,7 +110,7 @@ export const putProjectByID = async (req, res) => {
         const { id } = req.params;
         const { name, description, ongId, complementImages, additionalInfo, projectImage, contributionProject } = req.body;
 
-        const project = await prisma.projects.findUnique({ where: { id: parseInt(id) } });
+        const project = await prisma.projects.findUnique({ where: { id: Number.parseInt(id) } });
 
         if (!project) {
             return res.status(404).json({ error: "Projeto não encontrado" });
@@ -120,7 +120,7 @@ export const putProjectByID = async (req, res) => {
             where: {
                 name,
                 ongId: ongId || project.ongId,
-                NOT: { id: parseInt(id) },
+                NOT: { id: Number.parseInt(id) },
             },
         });
 
@@ -146,7 +146,7 @@ export const putProjectByID = async (req, res) => {
         }
 
         const updatedProject = await prisma.projects.update({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             data
         });
 
@@ -163,13 +163,13 @@ export const putProjectByID = async (req, res) => {
 export const deleteProjectByID = async (req, res) => {
     try {
         const { id } = req.params;
-        const project = await prisma.projects.findUnique({ where: { id: parseInt(id) } });
+        const project = await prisma.projects.findUnique({ where: { id: Number.parseInt(id) } });
 
         if (!project) {
             return res.status(404).json({ error: "Projeto não encontrado" });
         }
 
-        await prisma.projects.delete({ where: { id: parseInt(id) } });
+        await prisma.projects.delete({ where: { id: Number.parseInt(id) } });
 
         res.status(200).json({ message: "Projeto deletado com sucesso"});
     } catch (error) {
@@ -197,7 +197,7 @@ export const postRequestVolunteer = async (req, res) => {
     }
 
     try {
-        const parsedProjectId = parseInt(projectId); 
+        const parsedProjectId = Number.parseInt(projectId); 
 
         // 2. Buscar o Projeto e a ONG Vinculada
         const project = await prisma.projects.findUnique({
@@ -276,8 +276,8 @@ export const getVolunteerStatus = async (req, res) => {
     }
 
     try {
-        const parsedProjectId = parseInt(projectId);
-        const parsedUserid = parseInt(userId)
+        const parsedProjectId = Number.parseInt(projectId);
+        const parsedUserid = Number.parseInt(userId)
 
         // Busca na tabela UserAssociateProject pelo registro que vincula o usuário ao projeto
         const volunteerRequest = await prisma.userAssociateProject.findFirst({
@@ -319,7 +319,7 @@ export const respondToVolunteerRequest = async (req, res) => {
     }
 
     try {
-        const parsedRequestId = parseInt(requestId);
+        const parsedRequestId = Number.parseInt(requestId);
 
         // 1. Busca a solicitação de voluntariado e inclui os dados do usuário, projeto e ONG
         const request = await prisma.userAssociateProject.findUnique({
