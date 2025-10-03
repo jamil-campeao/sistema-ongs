@@ -11,7 +11,7 @@ export const getMe = async (req, res) => {
         const { id } = req.user;
 
         const ongs = await prisma.ongs.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             select: {
                 id: true,
                 nameONG: true,
@@ -105,7 +105,7 @@ export const getOngProjects = async (req, res) => {
         const { id } = req.user
 
         const projectsOng = await prisma.projects.findMany({
-            where: {ongId: parseInt(id)}
+            where: {ongId: Number.parseInt(id)}
         })
 
         res.status(200).json(projectsOng);
@@ -119,7 +119,7 @@ export const getOngByID = async (req, res) => {
     try {
         const { id } = req.params;
         const ong = await prisma.ongs.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             select: {
                 id: true,
                 nameONG: true,
@@ -223,7 +223,7 @@ export const putOng = async (req, res) => {
         const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
         state, cellphone, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, profileImage, coverImage} = req.body;
 
-        const ong = await prisma.ongs.findUnique({ where: { id: parseInt(id) } });
+        const ong = await prisma.ongs.findUnique({ where: { id: Number.parseInt(id) } });
 
         if (!ong) {
             return res.status(404).json({ error: "ONG não encontrada" });
@@ -232,7 +232,7 @@ export const putOng = async (req, res) => {
         if (cnpj) {
             const existingOngCNPJ = await prisma.ongs.findUnique({ where: { cnpj } });
 
-            if (existingOngCNPJ && existingOngCNPJ.id !== parseInt(id)) {
+            if (existingOngCNPJ && existingOngCNPJ.id !== Number.parseInt(id)) {
                 return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
             }
         }
@@ -262,7 +262,7 @@ export const putOng = async (req, res) => {
         if (profileImage) data.profileImage = profileImage;
         if (coverImage) data.coverImage = coverImage;
 
-        const updatedOng = await prisma.ongs.update({ where: { id: parseInt(id) }, data});
+        const updatedOng = await prisma.ongs.update({ where: { id: Number.parseInt(id) }, data});
 
         const { createdAt, updatedAt, updatedImages, password, ...ongWithoutTimestamps } = updatedOng;
 
@@ -280,13 +280,13 @@ export const deleteOngByID = async (req, res) => {
         }
 
         const { id } = req.params;
-        const ong = await prisma.ongs.findUnique({ where: { id: parseInt(id) } });
+        const ong = await prisma.ongs.findUnique({ where: { id: Number.parseInt(id) } });
 
         if (!ong) {
             return res.status(404).json({ error: "ONG não encontrada" });
         }
 
-        await prisma.ongs.delete({ where: { id: parseInt(id) } });
+        await prisma.ongs.delete({ where: { id: Number.parseInt(id) } });
         res.status(204).send();
 
     } catch (error) {
@@ -440,7 +440,7 @@ export const getAllOngUserRelations = async (req, res) => {
 export const getProjectVolunteerRequestsForOng = async (req, res) => {
     const { id: ongId } = req.params;
 
-    const parsedOngId = parseInt(ongId)
+    const parsedOngId = Number.parseInt(ongId)
  
     try {
         // 1. Encontro todos os projetos que pertencem a esta ONG logada

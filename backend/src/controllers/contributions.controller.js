@@ -5,7 +5,7 @@ export const getContributionsUser = async (req, res) => {
     try {
         const { id } = req.user;
         const contributions = await prisma.contribution.findMany({
-            where: { userId: parseInt(id)}
+            where: { userId: Number.parseInt(id)}
         });
 
         if (!contributions) {
@@ -49,14 +49,14 @@ export const postContributionUser =  async (req, res) => {
             type,
             date: new Date(date),
             description,
-            hours: parseInt(hours),
+            hours: Number.parseInt(hours),
             location,
-            userId: parseInt(id),
+            userId: Number.parseInt(id),
             ongName,
         };
 
         if (ongId) {
-            data.ongId = parseInt(ongId);
+            data.ongId = Number.parseInt(ongId);
         }
 
         const newContribution = await prisma.contribution.create({ data });
@@ -73,7 +73,7 @@ export const putContributionByID = async (req, res) => {
         const { name, date, type, description, hours, location, ongId, ongName, feedback, rating } = req.body;
         const { id: userId } = req.user; 
 
-        const contribution = await prisma.contribution.findUnique({ where: { id: parseInt(id)}});
+        const contribution = await prisma.contribution.findUnique({ where: { id: Number.parseInt(id)}});
 
         if (!contribution) {
             return res.status(404).json({ error: "Contribuição não encontrada"});
@@ -84,14 +84,14 @@ export const putContributionByID = async (req, res) => {
             type,
             date: new Date(date),
             description,
-            hours: parseInt(hours),
+            hours: Number.parseInt(hours),
             location,
-            userId: parseInt(userId),
+            userId: Number.parseInt(userId),
             ongName,
         };
 
         if (ongId) {
-            data.ongId = parseInt(ongId);
+            data.ongId = Number.parseInt(ongId);
         }
 
         if (feedback) {
@@ -99,11 +99,11 @@ export const putContributionByID = async (req, res) => {
         }
 
         if (rating) {
-            data.rating = parseInt(rating);
+            data.rating = Number.parseInt(rating);
         }
 
         const updatedContribution = await prisma.contribution.update({
-            where: { id: parseInt(id) },
+            where: { id: Number.parseInt(id) },
             data
         });
 
@@ -120,13 +120,13 @@ export const putContributionByID = async (req, res) => {
 export const deleteContributionByID =  async (req, res) => {
     try {
         const { id } = req.params;
-        const contribution = await prisma.contribution.findUnique({ where: { id: parseInt(id) } });
+        const contribution = await prisma.contribution.findUnique({ where: { id: Number.parseInt(id) } });
 
         if (!contribution) {
             return res.status(404).json({ error: "Contribuição não encontrada" });
         }
 
-        await prisma.contribution.delete({ where: { id: parseInt(id) } });
+        await prisma.contribution.delete({ where: { id: Number.parseInt(id) } });
         res.status(200).json({ message: "Contribuição deletada com sucesso"});
 
     } catch (error) {

@@ -89,7 +89,7 @@ export default function EditContributionModal({
     const { name, value } = e.target;
     setContributionData((prev) => ({
       ...prev,
-      [name]: name === "hours" ? parseInt(value) : value, // Converte "hours" para número
+      [name]: name === "hours" ? Number.parseInt(value) : value, // Converte "hours" para número
     }));
 
     if (name === "ongName") {

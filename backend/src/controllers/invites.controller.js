@@ -8,7 +8,7 @@ export const getInviteDetails = async (req, res) => {
     }
 
     try {
-        const parsedInviteId = parseInt(id);
+        const parsedInviteId = Number.parseInt(id);
 
         const invite = await prisma.associateUserONG.findUnique({
             where: { id: parsedInviteId },
@@ -60,7 +60,7 @@ export const putRespondToInvite = async (req, res) => {
     }
 
     try {
-        const parsedInviteId = parseInt(id);
+        const parsedInviteId = Number.parseInt(id);
 
         const invite = await prisma.associateUserONG.findUnique({
             where: { id: parsedInviteId },

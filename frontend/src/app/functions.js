@@ -14,12 +14,12 @@ export function validaCNPJ(cnpj) {
   let pos = tamanho - 7;
 
   for (let i = tamanho; i >= 1; i--) {
-    soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
+    soma += Number.parseInt(numeros.charAt(tamanho - i)) * pos--;
     if (pos < 2) pos = 9;
   }
 
   let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-  if (resultado !== parseInt(digitos.charAt(0))) return false;
+  if (resultado !== Number.parseInt(digitos.charAt(0))) return false;
 
   tamanho += 1;
   numeros = cnpj.substring(0, tamanho);
@@ -27,12 +27,12 @@ export function validaCNPJ(cnpj) {
   pos = tamanho - 7;
 
   for (let i = tamanho; i >= 1; i--) {
-    soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
+    soma += Number.parseInt(numeros.charAt(tamanho - i)) * pos--;
     if (pos < 2) pos = 9;
   }
 
   resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-  if (resultado !== parseInt(digitos.charAt(1))) return false;
+  if (resultado !== Number.parseInt(digitos.charAt(1))) return false;
 
   return true;
 };
@@ -47,19 +47,19 @@ export function validaCPF(cpf) {
 
   let soma = 0;
   for (let i = 0; i < 9; i++) {
-    soma += parseInt(cpf.charAt(i)) * (10 - i);
+    soma += Number.parseInt(cpf.charAt(i)) * (10 - i);
   }
 
   let digito1 = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-  if (digito1 !== parseInt(cpf.charAt(9))) return false;
+  if (digito1 !== Number.parseInt(cpf.charAt(9))) return false;
 
   soma = 0;
   for (let i = 0; i < 10; i++) {
-    soma += parseInt(cpf.charAt(i)) * (11 - i);
+    soma += Number.parseInt(cpf.charAt(i)) * (11 - i);
   }
 
   let digito2 = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-  if (digito2 !== parseInt(cpf.charAt(10))) return false;
+  if (digito2 !== Number.parseInt(cpf.charAt(10))) return false;
 
   return true;
 }
