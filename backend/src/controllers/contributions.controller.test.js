@@ -1,4 +1,3 @@
-// src/controllers/contributions.controller.test.js
 import { postContributionUser, deleteContributionByID } from './contributions.controller.js';
 import prisma from '../db/client.js';
 
