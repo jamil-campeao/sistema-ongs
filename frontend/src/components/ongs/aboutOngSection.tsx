@@ -13,6 +13,8 @@ export default function AboutSection({ id }: { id: number }) {
         const response = await fetch('/api/ongs/' + id);
         const data = await response.json();
         setOng(data);
+      } catch (error) {
+        console.error("Erro ao carregar a ONG:", error);
       } finally {
         setIsLoading(false);
       }
