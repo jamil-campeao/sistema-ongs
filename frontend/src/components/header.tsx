@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "@/components/logout-button";
 import { useOng } from "@/context/ongContext";
-import { noProfileImageUser, noProfileImageONG } from "app/images";
+import { noProfileImageUser, noProfileImageONG } from "../app/images";
 import { useUser } from "@/context/userContext";
 
 export default function Header() {
@@ -21,17 +21,19 @@ export default function Header() {
 
   const profileImage = (loggedInEntity: any) => {
     if (loggedInEntity?.role !== "ONG") {
-      return loggedInEntity?.profileImage !== null ? loggedInEntity?.profileImage : noProfileImageUser
+      return loggedInEntity?.profileImage !== null
+        ? loggedInEntity?.profileImage
+        : noProfileImageUser;
+    } else {
+      return loggedInEntity?.profileImage !== null
+        ? loggedInEntity?.profileImage
+        : noProfileImageONG;
     }
-    else {
-      return loggedInEntity?.profileImage !== null ? loggedInEntity?.profileImage : noProfileImageONG
-    }
-  }
+  };
 
   const isActive = (path: string) => {
     return pathName === path;
-  }
- 
+  };
 
   const profileLink = ong ? "/profile/ong" : "/profile/user";
 
@@ -44,12 +46,11 @@ export default function Header() {
     timeoutRef.current = setTimeout(() => {
       setIsHovered(false);
     }, 200);
-
   };
 
   // --- Função para lidar com a busca ao pressionar Enter ---
   const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       const trimmedSearchTerm = searchTerm.trim();
       if (trimmedSearchTerm) {
         // Redireciona para a página de resultados de busca
@@ -65,7 +66,11 @@ export default function Header() {
       <div className="container flex items-center justify-between h-14 px-4 mx-auto">
         <div className="flex items-center gap-4">
           <Link href="/feed" className="text-2xl font-bold text-blue-600">
-            <img src="/static/logo.webp" alt="Logo" className="w-14 h-14 rounded" />
+            <img
+              src="/static/logo.webp"
+              alt="Logo"
+              className="w-14 h-14 rounded"
+            />
           </Link>
           <div className="relative hidden md:block">
             <svg
@@ -84,23 +89,25 @@ export default function Header() {
               <path d="m21 21-4.3-4.3" />
             </svg>
             {/* Input de Busca */}
-            <input 
-              placeholder="Buscar ONG's e Projetos" 
-              className="w-64 pl-8 bg-gray-100 border-none rounded-md h-9 px-3" 
+            <input
+              placeholder="Buscar ONG's e Projetos"
+              className="w-64 pl-8 bg-gray-100 border-none rounded-md h-9 px-3"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleSearch}
-              />
+            />
           </div>
         </div>
         <nav className="flex items-center space-x-1">
           {/* Início */}
           <Link href="/feed" className="flex flex-col items-center px-1 py-1">
-              <div
-                className={`flex items-center justify-center h-9 w-9 rounded-md ${
-                  isActive("/feed") ? "text-blue-600 bg-blue-100" : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
+            <div
+              className={`flex items-center justify-center h-9 w-9 rounded-md ${
+                isActive("/feed")
+                  ? "text-blue-600 bg-blue-100"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -118,20 +125,24 @@ export default function Header() {
             </div>
             <span
               className={`text-xs mt-0.5 ${
-                isActive("/feed") ? "text-blue-600 font-semibold" : "text-gray-500"
+                isActive("/feed")
+                  ? "text-blue-600 font-semibold"
+                  : "text-gray-500"
               }`}
             >
               Início
             </span>
           </Link>
 
-           {/* ONG's */}     
-            <Link href="/ongs" className="flex flex-col items-center px-1 py-1">
-              <div
-                className={`flex items-center justify-center h-9 w-9 rounded-md ${
-                  isActive("/ongs") ? "text-blue-600 bg-blue-100" : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
+          {/* ONG's */}
+          <Link href="/ongs" className="flex flex-col items-center px-1 py-1">
+            <div
+              className={`flex items-center justify-center h-9 w-9 rounded-md ${
+                isActive("/ongs")
+                  ? "text-blue-600 bg-blue-100"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -151,20 +162,27 @@ export default function Header() {
             </div>
             <span
               className={`text-xs mt-0.5 ${
-                isActive("/ongs") ? "text-blue-600 font-semibold" : "text-gray-500"
+                isActive("/ongs")
+                  ? "text-blue-600 font-semibold"
+                  : "text-gray-500"
               }`}
             >
               ONG's
             </span>
           </Link>
 
-          {/* Projetos */}      
-            <Link href="/projects" className="flex flex-col items-center px-1 py-1">
-              <div
-                className={`flex items-center justify-center h-9 w-9 rounded-md ${
-                  isActive("/projects") ? "text-blue-600 bg-blue-100" : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
+          {/* Projetos */}
+          <Link
+            href="/projects"
+            className="flex flex-col items-center px-1 py-1"
+          >
+            <div
+              className={`flex items-center justify-center h-9 w-9 rounded-md ${
+                isActive("/projects")
+                  ? "text-blue-600 bg-blue-100"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -182,7 +200,9 @@ export default function Header() {
             </div>
             <span
               className={`text-xs mt-0.5 ${
-                isActive("/projects") ? "text-blue-600 font-semibold" : "text-gray-500"
+                isActive("/projects")
+                  ? "text-blue-600 font-semibold"
+                  : "text-gray-500"
               }`}
             >
               Projetos
@@ -196,46 +216,69 @@ export default function Header() {
           >
             {/* Meu Perfil */}
             <Link href={profileLink} className="flex flex-col items-center">
-              <div className={`h-7 w-7 rounded-full overflow-hidden ${
-                    isActive(profileLink) ? "text-blue-600 bg-blue-100" : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                <img src={profileImage(loggedInEntity)} alt="User" className="h-full w-full object-cover" />
+              <div
+                className={`h-7 w-7 rounded-full overflow-hidden ${
+                  isActive(profileLink)
+                    ? "text-blue-600 bg-blue-100"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <img
+                  src={profileImage(loggedInEntity)}
+                  alt="User"
+                  className="h-full w-full object-cover"
+                />
               </div>
-                <span
-                  className={`text-xs mt-0.5 ${
-                    isActive(profileLink) ? "text-blue-600 font-semibold" : "text-gray-500"
-                  }`}
-                >Perfil ▼</span>
+              <span
+                className={`text-xs mt-0.5 ${
+                  isActive(profileLink)
+                    ? "text-blue-600 font-semibold"
+                    : "text-gray-500"
+                }`}
+              >
+                Perfil ▼
+              </span>
             </Link>
 
             <div
               className={`absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50 transition-opacity duration-200 ${
                 isHovered ? "opacity-100 visible" : "opacity-0 invisible"
-              }`
-            }
+              }`}
             >
-              <Link href={profileLink} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <Link
+                href={profileLink}
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
                 Meu Perfil
               </Link>
               {/* Renderiza o link 'Painel de Colaboradores' APENAS SE loggedInEntity for uma ONG */}
-              {loggedInEntity?.role === 'ONG' && (
-                <Link href='/manage-collaborators' className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              {loggedInEntity?.role === "ONG" && (
+                <Link
+                  href="/manage-collaborators"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
                   Painel de Colaboradores
                 </Link>
               )}
               {/* Renderiza o link 'Painel de Projetos da ONG' APENAS SE loggedInEntity for uma ONG */}
-              {loggedInEntity?.role === 'ONG' && (
-                <Link href='/manage-projects/ong' className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              {loggedInEntity?.role === "ONG" && (
+                <Link
+                  href="/manage-projects/ong"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
                   Painel de Projetos da ONG
                 </Link>
               )}
               {/* Renderiza o link 'Painel de Projetos' APENAS SE loggedInEntity for um COLABORADOR */}
-              {loggedInEntity?.role === 'COLLABORATOR' && loggedInEntity.ong?.id && (
-                <Link href='/manage-projects' className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  Painel de Projetos
-                </Link>
-              )}
+              {loggedInEntity?.role === "COLLABORATOR" &&
+                loggedInEntity.ong?.id && (
+                  <Link
+                    href="/manage-projects"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Painel de Projetos
+                  </Link>
+                )}
               <div className="border-t border-gray-100 my-1"></div>
               <div className="px-4 py-2">
                 <LogoutButton />
