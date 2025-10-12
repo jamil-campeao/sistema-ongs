@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs"; // Alterado para bcryptjs
 import prisma from "../db/client.js";
 import { generateToken } from "../services/authentication.js";
-import { request, response } from "express";
+
 
 export const postLogin = async (req, res) => {
     const { email, password } = req.body;
