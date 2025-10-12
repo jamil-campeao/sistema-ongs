@@ -1,78 +1,100 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/api/config";
 
-export async function GET(request: NextRequest,  context: { params: { id: number } }) {
-    try {
-        const TOKEN = request.cookies.get('token')?.value;
-        const params = await context.params;
-        const { id } = params;
-        const response = await fetch(API_URL + "/projects/" + id, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + TOKEN
-            }
-        });
+export async function GET(
+  request: NextRequest,
+  context: { params: { id: number } }
+) {
+  try {
+    const TOKEN = request.cookies.get("token")?.value;
+    const params = context.params;
+    const { id } = params;
+    const response = await fetch(API_URL + "/projects/" + id, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + TOKEN,
+      },
+    });
 
-        if (!response.ok) {
-          return NextResponse.json({ error: await response.json() }, { status: response.status });
-        }
-
-        return NextResponse.json(await response.json(), { status: response.status });
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: await response.json() },
+        { status: response.status }
+      );
     }
+
+    return NextResponse.json(await response.json(), {
+      status: response.status,
+    });
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function PUT(request: NextRequest,  context: { params: { id: number } }) {
-    try {
-        const TOKEN = request.cookies.get('token')?.value;
-        const params = await context.params;
-        const { id } = params;
-        const data = await request.json();
-        
-        const response = await fetch(`${API_URL}/projects/${id}`, {
-            method: 'PUT',
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + TOKEN
-            },
+export async function PUT(
+  request: NextRequest,
+  context: { params: { id: number } }
+) {
+  try {
+    const TOKEN = request.cookies.get("token")?.value;
+    const params = context.params;
+    const { id } = params;
+    const data = await request.json();
 
-            body: JSON.stringify(data),
-        });
+    const response = await fetch(`${API_URL}/projects/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + TOKEN,
+      },
 
-        if (!response.ok) {
-            return NextResponse.json({ error: await response.json() }, { status: response.status });
-        }
+      body: JSON.stringify(data),
+    });
 
-        return NextResponse.json(await response.json(), { status: response.status });
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: await response.json() },
+        { status: response.status }
+      );
+    }
 
-    } catch (error) {
-        throw error;
-    } 
+    return NextResponse.json(await response.json(), {
+      status: response.status,
+    });
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function DELETE(request: NextRequest,  context: { params: { id: number } }) {
-    try {
-        const TOKEN = request.cookies.get('token')?.value;
-        const params = await context.params;
-        const { id } = params;
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { id: number } }
+) {
+  try {
+    const TOKEN = request.cookies.get("token")?.value;
+    const params = context.params;
+    const { id } = params;
 
-        const response = await fetch(`${API_URL}/projects/${id}`, {
-            method: 'DELETE',
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + TOKEN
-            }  
-        });
+    const response = await fetch(`${API_URL}/projects/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + TOKEN,
+      },
+    });
 
-        if (!response.ok) {
-            return NextResponse.json({ error: await response.json() }, { status: response.status });
-        }
-
-        return NextResponse.json(await response.json(), { status: response.status });
-
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: await response.json() },
+        { status: response.status }
+      );
     }
+
+    return NextResponse.json(await response.json(), {
+      status: response.status,
+    });
+  } catch (error) {
+    throw error;
+  }
 }
