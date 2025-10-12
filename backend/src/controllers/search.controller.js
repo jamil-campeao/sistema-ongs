@@ -1,4 +1,3 @@
-import express from "express";
 import prisma from "../db/client.js";
 
 export const searchOngsAndProjects = async (req, res) => {

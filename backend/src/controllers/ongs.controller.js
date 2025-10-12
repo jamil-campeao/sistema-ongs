@@ -1,6 +1,38 @@
 import bcrypt from "bcryptjs";
 import prisma from "../db/client.js";
 
+const isCnpjDuplicate = async (cnpj, currentOngId) => {
+    if (!cnpj) {
+        return false;
+    }
+    const existingOng = await prisma.ongs.findUnique({ where: { cnpj } });
+    return existingOng && existingOng.id !== currentOngId;
+};
+
+
+const buildUpdateData = (body) => {
+    const allowedFields = [
+        'nameONG', 'socialName', 'cnpj', 'area', 'goals', 'cep', 'street',
+        'number', 'complement', 'city', 'district', 'state', 'cellphone',
+        'socialMedia', 'nameLegalGuardian', 'cpfLegalGuardian', 'rgLegalGuardian',
+        'cellphoneLegalGuardian', 'description', 'profileImage', 'coverImage'
+    ];
+
+    const data = {};
+
+    allowedFields.forEach(field => {
+        if (body[field]) {
+            data[field] = body[field];
+        }
+    });
+
+    if (body.foundationDate) {
+        data.foundationDate = new Date(body.foundationDate);
+    }
+
+    return data;
+};
+
 export const getMe = async (req, res) => {
     try {
         if (req.user.tipo !== "ONG") {
@@ -28,7 +60,6 @@ export const getMe = async (req, res) => {
                 district: true,
                 state: true,
                 cellphone: true,
-                emailONG: true,
                 socialMedia: true,
                 nameLegalGuardian: true,
                 cpfLegalGuardian: true,
@@ -57,7 +88,7 @@ export const getMe = async (req, res) => {
 
         return res.status(200).json(combinedOngData);
     } catch (error) {
-        console.log(error);
+        console.error("Erro ao buscar ong /me:", error);
         res.status(500).json({ error: "Erro ao buscar ong /me" });
     }
 };
@@ -96,6 +127,7 @@ export const getOngs = async (req, res) => {
 
         res.status(200).json(ongs);
     } catch (error) {
+        console.error("Erro ao buscar ONGs:", error);
         res.status(500).json({ error: `Erro ao buscar ONGs: ${error}` });
     }
 };
@@ -111,6 +143,7 @@ export const getOngProjects = async (req, res) => {
         res.status(200).json(projectsOng);
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({error: "Erro ao buscar projetos de ong"});
     }
 }
@@ -153,7 +186,6 @@ export const getOngByID = async (req, res) => {
                         id: true
                     }
                 },
-                description: true,
             }
         });
         if (!ong) {
@@ -161,6 +193,7 @@ export const getOngByID = async (req, res) => {
         }
         res.status(200).json(ong);
     } catch (error) {
+        console.error("Erro ao buscar ONG:", error);
         res.status(500).json({ error: "Erro ao buscar ONG" });
     }
 };
@@ -214,61 +247,38 @@ export const postOng = async (req, res) => {
 
 export const putOng = async (req, res) => {
     try {
-
         if (req.user.tipo !== "ONG") {
-            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
+            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota" });
         }
-        const {id} = req.user;
 
-        const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
-        state, cellphone, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, profileImage, coverImage} = req.body;
-
+        const { id } = req.user;
         const ong = await prisma.ongs.findUnique({ where: { id: Number.parseInt(id) } });
 
         if (!ong) {
             return res.status(404).json({ error: "ONG não encontrada" });
         }
 
-        if (cnpj) {
-            const existingOngCNPJ = await prisma.ongs.findUnique({ where: { cnpj } });
-
-            if (existingOngCNPJ && existingOngCNPJ.id !== Number.parseInt(id)) {
-                return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
-            }
+        const { cnpj } = req.body;
+        if (await isCnpjDuplicate(cnpj, ong.id)) {
+            return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
         }
 
-        const data = { };
+        const dataToUpdate = buildUpdateData(req.body);
 
-        if (complement) data.complement = complement;
-        if (city) data.city = city;
-        if (district) data.district = district;
-        if (state) data.state = state;
-        if (cellphone) data.cellphone = cellphone;
-        if (socialMedia) data.socialMedia = socialMedia;
-        if (cpfLegalGuardian) data.cpfLegalGuardian = cpfLegalGuardian;
-        if (rgLegalGuardian) data.rgLegalGuardian = rgLegalGuardian;
-        if (description) data.description = description;
-        if (cellphoneLegalGuardian) data.cellphoneLegalGuardian = cellphoneLegalGuardian;
-        if (nameONG) data.nameONG = nameONG;
-        if (socialName) data.socialName = socialName;
-        if (number) data.number = number;
-        if (cnpj) data.cnpj = cnpj;
-        if (foundationDate) data.foundationDate = new Date(foundationDate);
-        if (area) data.area = area;
-        if (goals) data.goals = goals;
-        if (cep) data.cep = cep;
-        if (street) data.street = street;
-        if (nameLegalGuardian) data.nameLegalGuardian = nameLegalGuardian;
-        if (profileImage) data.profileImage = profileImage;
-        if (coverImage) data.coverImage = coverImage;
+        if (Object.keys(dataToUpdate).length === 0) {
+            return res.status(400).json({ error: "Nenhum dado válido foi fornecido para atualização." });
+        }
+        
+        const updatedOng = await prisma.ongs.update({
+            where: { id: Number.parseInt(id) },
+            data: dataToUpdate
+        });
 
-        const updatedOng = await prisma.ongs.update({ where: { id: Number.parseInt(id) }, data});
+        const { createdAt, updatedAt, updatedImages, password, ...ongResponse } = updatedOng;
+        res.status(200).json(ongResponse);
 
-        const { createdAt, updatedAt, updatedImages, password, ...ongWithoutTimestamps } = updatedOng;
-
-        res.status(200).json(ongWithoutTimestamps);
     } catch (error) {
-        console.log(error);
+        console.error("Erro ao atualizar ONG:", error);
         res.status(500).json({ error: "Erro ao atualizar ONG" });
     }
 };
@@ -290,6 +300,7 @@ export const deleteOngByID = async (req, res) => {
         res.status(204).send();
 
     } catch (error) {
+        console.error("Erro ao deletar ONG:", error);
         res.status(500).json({ error: "Erro ao deletar ONG" });
     }
 };
@@ -309,6 +320,7 @@ export const getCNPJ = async (req, res) => {
 
         res.status(200).json(data);
     } catch (error) {
+        console.error("Erro ao consultar dados de CNPJ:", error);
         return res.status(500).json({message: `Erro ao consultar dados de CNPJ: ${error}`});
     }
 };
@@ -333,6 +345,7 @@ export const PutPasswordOng = async (req, res) => {
         res.status(200).json( { message: "Senha atualizada com sucesso"});
     }
     catch (error) {
+        console.error("Erro ao atualizar senha:", error);
         res.status(500).json({ message: "Erro ao atualizar senha"});
     }
 }
