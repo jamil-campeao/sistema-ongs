@@ -9,7 +9,7 @@
     "migrate-dev": "npx prisma migrate dev",
     "migrate-prod": "npx prisma migrate deploy",
     "seed": "node prisma/seed.js",
-     "test": "vitest"
+    "test": "vitest"
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
@@ -26,6 +26,7 @@
   "devDependencies": {
     "nodemon": "^3.1.9",
     "prisma": "^6.5.0",
+    "supertest": "^7.1.4",
     "vitest": "^3.2.4"
   }
 }
