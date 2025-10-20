@@ -38,12 +38,35 @@ services:
       context: ./frontend/
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: "http://backend:3000/api/v1"
+        NEXT_PUBLIC_API_URL: "http://localhost:3000/api/v1"
     container_name: frontend_container
     ports:
       - "3001:3001"
     depends_on:
       - backend
 
+
+  prometheus:
+      image: prom/prometheus:latest
+      container_name: prometheus
+      ports:
+        - "9090:9090"
+      volumes:
+        - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      depends_on:
+        - backend
+  
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - "3003:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana # Persiste os dashboards
+      - ./monitoring/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+    depends_on:
+      - prometheus
+
 volumes:
   postgres_data:
+  grafana_data:
