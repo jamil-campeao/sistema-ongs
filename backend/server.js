@@ -1,5 +1,5 @@
-import app from "./app.js";
-import prisma from "./db/client.js";
+import app from "./src/app.js"
+import prisma from "./src/db/client.js"
 
 const PORT = process.env.PORT || 3000;
 
