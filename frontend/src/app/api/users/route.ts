@@ -3,6 +3,7 @@ import { API_URL } from "@/api/config";
 
 export async function POST(request: NextRequest) {
     try {
+        console.log(API_URL);
         const TOKEN = request.cookies.get('token')?.value;
         const { name, email, password, location, role, description } = await request.json();
         const response = await fetch(API_URL + "/users", {
