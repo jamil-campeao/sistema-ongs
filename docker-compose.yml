@@ -3,9 +3,9 @@ services:
     image: postgres:17.4
     container_name: postgres_container
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: user
-      POSTGRES_DB: projeto_software
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -17,8 +17,8 @@ services:
       dockerfile: Dockerfile
     container_name: backend_container
     environment:
-      DATABASE_URL: "postgresql://user:user@postgres:5432/projeto_software?schema=public"
-      JWT_SECRET: "37 bv6sWlL!%w*3eXejSINfzF)(F.{;s"
+      DATABASE_URL: "${DATABASE_URL}"
+      JWT_SECRET: "${JWT_SECRET}"
     ports:
       - "3000:3000"
     depends_on:
@@ -38,7 +38,7 @@ services:
       context: ./frontend/
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: "http://localhost:3000/api/v1"
+        NEXT_PUBLIC_API_URL: "http://127.0.0.1:3000/api/v1"
     container_name: frontend_container
     ports:
       - "3001:3001"
