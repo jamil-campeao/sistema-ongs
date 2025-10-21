@@ -13,7 +13,7 @@ async function validateDatabaseConnection() {
   }
 }
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   await validateDatabaseConnection();
   console.log(`Servidor rodando na porta ${PORT}`);
 });
