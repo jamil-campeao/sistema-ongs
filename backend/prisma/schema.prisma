@@ -135,6 +135,7 @@ model Users {
   contributions Contribution[]
   associatedOngs AssociateUserONG[]
   associatedProjects UserAssociateProject[]
+  userOngToken    UserOngToken[]
 }
 
 model Ongs {
@@ -175,6 +176,8 @@ model Ongs {
   likes                   Likes[]
   comments                Comments[]
   associatedOngs AssociateUserONG[]
+  userOngToken   UserOngToken[]
+
 }
 
 model Projects {
@@ -238,4 +241,18 @@ model UserAssociateProject {
 
   @@index([userId])
   @@index([projectId])
+}
+
+model UserOngToken {
+  id        Int      @id @default(autoincrement())
+  token     String
+  userId    Int?
+  user      Users?     @relation(fields: [userId], references: [id])
+  ongId     Int?
+  ong       Ongs?      @relation(fields: [ongId], references: [id])
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
