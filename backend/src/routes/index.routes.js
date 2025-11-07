@@ -9,6 +9,7 @@ import filtersRoutes from "./filters.routes.js";
 import contributionsRoutes from "./contributions.routes.js";
 import invitesRoutes from "./invites.routes.js";
 import searchRoutes from "./search.routes.js"
+import forgotPasswordRoutes from "./forgotpassword.routes.js";
 
 
 const router = Router();
@@ -23,5 +24,6 @@ router.use("/api/v1/filters", filtersRoutes);
 router.use("/api/v1/contributions", contributionsRoutes);
 router.use("/api/v1/invites", invitesRoutes);
 router.use("/api/v1/search-results", searchRoutes);
+router.use("/api/v1/forgot-password", forgotPasswordRoutes);
 
 export default router;
