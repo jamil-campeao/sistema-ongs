@@ -69,6 +69,17 @@ services:
     depends_on:
       - prometheus
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared_tunnel
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TOKEN}
+    depends_on:
+      - frontend
+      - backend
+      - grafana
+      - prometheus
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   grafana_data:
