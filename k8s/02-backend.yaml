@@ -27,6 +27,11 @@ spec:
       containers:
         - name: backend
           image: ghcr.io/jamil-campeao/sistema-ongs/backend:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              npx prisma generate && \
+              npm start
           ports:
             - containerPort: 3001
           env:
