@@ -1,4 +1,4 @@
-import {Router} from "express";
+import { Router } from "express";
 import loginRoutes from "./login.routes.js";
 import usersRoutes from "./users.routes.js";
 import ongsRoutes from "./ongs.routes.js";
@@ -8,9 +8,9 @@ import postsRoutes from "./posts.routes.js";
 import filtersRoutes from "./filters.routes.js";
 import contributionsRoutes from "./contributions.routes.js";
 import invitesRoutes from "./invites.routes.js";
-import searchRoutes from "./search.routes.js"
+import searchRoutes from "./search.routes.js";
 import forgotPasswordRoutes from "./forgotpassword.routes.js";
-
+import emailRoutes from "./email.routes.js";
 
 const router = Router();
 
@@ -25,5 +25,6 @@ router.use("/api/v1/contributions", contributionsRoutes);
 router.use("/api/v1/invites", invitesRoutes);
 router.use("/api/v1/search-results", searchRoutes);
 router.use("/api/v1/forgot-password", forgotPasswordRoutes);
+router.use("/api/v1/email", emailRoutes);
 
 export default router;
