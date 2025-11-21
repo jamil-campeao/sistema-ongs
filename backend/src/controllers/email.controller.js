@@ -7,16 +7,26 @@ export const submitEmail = async (req, res) => {
       .json({ error: "Parâmetros insuficientes para enviar o e-mail" });
   }
 
-  const myHeaders = new Headers();
+const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
+  
   const requestOptions = {
     method: "post",
     headers: myHeaders,
     redirect: "follow",
   };
+  
   const urlBase = process.env.URL_BASE_EMAIL;
   const fromAddress = "naoresponda@colabora.blog.br";
-  const urlFinal = `${urlBase}?fromAddress=${fromAddress}&toAddress=${emailSubject}&content=${message}&subject=${subject}`;
+
+  const params = new URLSearchParams({
+      fromAddress: fromAddress,
+      toAddress: emailSubject, 
+      content: message, 
+      subject: subject
+  });
+
+  const urlFinal = `${urlBase}?${params.toString()}`;
 
   try {
     const response = await fetch(urlFinal, requestOptions);

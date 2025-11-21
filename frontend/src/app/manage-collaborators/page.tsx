@@ -157,7 +157,7 @@ export default function ManageCollaboratorsPage() {
 
       const emailSubject = `Convite para ${ong.nameONG} - Colaborador!`;
       const inviteLink = `${window.location.origin}/invite-collaborator?inviteId=${apiResponse.inviteId}`;
-      const emailMessage = `Olá ${userToInvite.name},\n\nA ONG ${ong.nameONG} (${ong.emailONG}) gostaria de convidá-lo para ser um colaborador.\n\nPara aceitar ou rejeitar o convite, clique no link abaixo:\n${inviteLink}\n\nObrigado,\nEquipe ${ong.nameONG}`;
+      const emailMessage = `Olá ${userToInvite.name},\n\nA ONG ${ong.nameONG} gostaria de convidá-lo para ser um colaborador.\n\nPara aceitar ou rejeitar o convite, clique no link abaixo:\n${inviteLink}\n\nObrigado,\nEquipe ${ong.nameONG}`;
 
       const sendEmail = await fetch(`/api/email/submit`, {
         method: "POST",

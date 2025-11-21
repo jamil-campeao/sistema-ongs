@@ -32,9 +32,7 @@ export const sendEmail = async (req, res) => {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 1);
 
-    const resetLink = `https://colabora.blog.br/editpassword?email=${encodeURIComponent(
-      email
-    )}&codigo=${encodeURIComponent(codigo)}`;
+    const resetLink = `https://colabora.blog.br/editpassword?email=${encodeURIComponent(email)}&codigo=${encodeURIComponent(codigo)}`;
 
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -48,7 +46,15 @@ export const sendEmail = async (req, res) => {
     const message = `Você solicitou a redefinição de senha. Clique no link abaixo para criar uma nova senha: ${resetLink} Este link expira em 1 hora.`;
     const subject = "Recuperação de Senha - Colabora";
     const emailSubject = email;
-    const urlFinal = `${urlBase}?fromAddress=${fromAddress}&toAddress=${emailSubject}&content=${message}&subject=${subject}`;
+
+    const params = new URLSearchParams({
+      fromAddress: fromAddress,
+      toAddress: emailSubject,
+      content: message,
+      subject: subject
+    });
+    
+    const urlFinal = `${urlBase}?${params.toString()}`;
 
     const response = await fetch(urlFinal, requestOptions);
 
