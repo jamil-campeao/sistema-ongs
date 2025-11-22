@@ -18,10 +18,10 @@ spec:
         - name: frontend
           image: ghcr.io/jamil-campeao/sistema-ongs/frontend:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 3001
           env:
             - name: NEXT_PUBLIC_API_URL
-              value: "http://backend:3001/api/v1"
+              value: "http://backend:3000/api/v1"
 ---
 apiVersion: v1
 kind: Service
