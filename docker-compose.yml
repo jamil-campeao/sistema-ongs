@@ -19,8 +19,7 @@ services:
     environment:
       DATABASE_URL: "${DATABASE_URL}"
       JWT_SECRET: "${JWT_SECRET}"
-      MAIL_USER: "${MAIL_USER}"
-      MAIL_PASS: "${MAIL_PASS}"
+      URL_BASE_EMAIL: "${URL_BASE_EMAIL}"
     ports:
       - "3000:3000"
     depends_on:

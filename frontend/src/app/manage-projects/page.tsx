@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@/context/userContext";
 import { useRouter } from "next/navigation";
-import { envioEmail } from "@/api/email";
 import Header from "@/components/header";
 import Footer from "../../components/footer";
+import type { EmailResponse } from "@/interfaces/index";
 
 // --- Interfaces (definidas acima ou importadas) ---
 interface VolunteerUser {
@@ -110,11 +110,25 @@ export default function ManageProjectVolunteersPage() {
     }
 
     try {
-      await envioEmail(volunteerEmail, emailSubject, emailMessage);
+      const sendEmail = await fetch(`/api/email/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emailSubject: volunteerEmail,
+          subject: emailSubject,
+          message: emailMessage,
+        }),
+      });
+
+      const emailResponse: EmailResponse = await sendEmail.json();
+
+      if (!emailResponse.success) {
+        throw new Error(emailResponse.error || "Falha ao enviar e-mail");
+      }
+
       alert(`E-mail de notificação enviado ao voluntário.`);
     } catch (emailError) {
       console.error("Falha ao enviar e-mail de notificação:", emailError);
-      // Opcional: informar ao usuário que o e-mail falhou, mas a ação foi concluída.
       alert(
         "A solicitação foi processada, mas houve um erro ao enviar o e-mail de notificação."
       );
