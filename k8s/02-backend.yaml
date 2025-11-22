@@ -22,6 +22,7 @@ spec:
       initContainers:
         - name: init-migrate
           image: ghcr.io/jamil-campeao/sistema-ongs/backend:latest
+          imagePullPolicy: Always
           command: ["npx", "prisma", "migrate", "deploy"]
           env:
             - name: DATABASE_URL
@@ -32,6 +33,7 @@ spec:
       containers:
         - name: backend
           image: ghcr.io/jamil-campeao/sistema-ongs/backend:latest
+          imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
           args:
             - |
