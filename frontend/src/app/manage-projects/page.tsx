@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@/context/userContext";
 import { useRouter } from "next/navigation";
-import { envioEmail } from "@/api/email";
 import Header from "@/components/header";
 import Footer from "../../components/footer";
 import type { EmailResponse } from "@/interfaces/index";
