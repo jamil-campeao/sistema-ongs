@@ -7,8 +7,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1 # Cria 1 novo antes de matar o velho
-      maxUnavailable: 0 # Garante 100% de disponibilidade
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: backend
@@ -37,28 +37,30 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
+              echo "Iniciando na porta 3001..." && \
               npx prisma generate && \
               npm start
           ports:
-            - containerPort: 3000
+            - containerPort: 3001
 
-          # --- ZERO DOWNTIME ---
+          # --- PROBES NA 3001 ---
           readinessProbe:
             httpGet:
-              path: / # Verifica se a rota raiz responde
-              port: 3000
-            initialDelaySeconds: 5 # Dá 5s pro Node iniciar antes de testar
-            periodSeconds: 5 # Testa a cada 5s
-            failureThreshold: 3 # Tenta 3x antes de considerar falha
+              path: /
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /
-              port: 3000
-            initialDelaySeconds: 15
+              port: 3001
+            initialDelaySeconds: 20
             periodSeconds: 10
+
           env:
             - name: PORT
-              value: "3000"
+              value: "3001"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -85,5 +87,5 @@ spec:
     app: backend
   ports:
     - protocol: TCP
-      port: 3000
-      targetPort: 3000
+      port: 3001
+      targetPort: 3001
