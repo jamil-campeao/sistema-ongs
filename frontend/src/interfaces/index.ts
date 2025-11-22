@@ -80,3 +80,9 @@ export interface Project {
     additionalInfo: string 
     ong: Ong[]
 }
+
+export interface EmailResponse {
+  success: boolean
+  message?: string
+  error?: string
+}

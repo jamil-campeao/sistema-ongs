@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import type { Ong } from "@/interfaces/index"; 
-import { noCoverImage, noProfileImageONG } from "app/images"; 
-import { envioEmail } from "@/api/email";
+import type { Ong } from "@/interfaces/index";
+import { noCoverImage, noProfileImageONG } from "app/images";
 
 export default function OngHeader({ id }: { id: number }) {
   const [ong, setOng] = useState<Ong | null>(null);
@@ -32,7 +31,10 @@ export default function OngHeader({ id }: { id: number }) {
   // --- Efeito para lidar com o clique fora do modal (REUTILIZADO) ---
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         setSelectedImage(null); // Fecha o modal
         setIsZoomed(false); // Reseta o zoom
       }
@@ -66,28 +68,40 @@ export default function OngHeader({ id }: { id: number }) {
   const getFileNameFromUrl = (url: string, baseName: string = "imagem") => {
     try {
       const urlObj = new URL(url);
-      const pathSegments = urlObj.pathname.split('/');
+      const pathSegments = urlObj.pathname.split("/");
       let fileName = pathSegments[pathSegments.length - 1];
 
-      fileName = fileName.split('?')[0];
+      fileName = fileName.split("?")[0];
 
-      if (!fileName || fileName === '.' || fileName.lastIndexOf('/') === fileName.length -1) {
-        return `${baseName.replace(/\s+/g, '_').toLowerCase()}_${new Date().getTime()}.jpg`;
+      if (
+        !fileName ||
+        fileName === "." ||
+        fileName.lastIndexOf("/") === fileName.length - 1
+      ) {
+        return `${baseName
+          .replace(/\s+/g, "_")
+          .toLowerCase()}_${new Date().getTime()}.jpg`;
       }
 
       return fileName;
     } catch (error) {
-      console.warn("Could not parse image URL for filename, using default.", url);
-      return `${baseName.replace(/\s+/g, '_').toLowerCase()}_${new Date().getTime()}.jpg`;
+      console.warn(
+        "Could not parse image URL for filename, using default.",
+        url
+      );
+      return `${baseName
+        .replace(/\s+/g, "_")
+        .toLowerCase()}_${new Date().getTime()}.jpg`;
     }
   };
   // --- Fim das funções ---
 
-
   if (isLoading || !ong) {
     return (
       <div className="bg-white rounded-lg shadow p-4 text-center">
-        <h3 className="text-base font-medium">Carregando informações da ONG...</h3>
+        <h3 className="text-base font-medium">
+          Carregando informações da ONG...
+        </h3>
       </div>
     );
   }
@@ -112,7 +126,9 @@ export default function OngHeader({ id }: { id: number }) {
       <div className="relative px-6 pb-6">
         {/* Foto de perfil */}
         <div className="absolute -top-16 left-6">
-          <div className="h-32 w-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-white cursor-pointer"> {/* Adiciona cursor-pointer */}
+          <div className="h-32 w-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-white cursor-pointer">
+            {" "}
+            {/* Adiciona cursor-pointer */}
             <img
               src={profileImageUrl}
               alt={ong.nameONG}
@@ -125,7 +141,9 @@ export default function OngHeader({ id }: { id: number }) {
         <div className="pt-20 pl-6 md:flex md:justify-between md:items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{ong.nameONG}</h1>
-            <p className="text-sm text-gray-700 mt-1">Razão Social: {ong.socialName}</p>
+            <p className="text-sm text-gray-700 mt-1">
+              Razão Social: {ong.socialName}
+            </p>
             <p className="text-sm text-gray-600">CNPJ: {ong.cnpj}</p>
             <p className="text-sm text-gray-500 mt-2">
               Responsável: {ong.nameLegalGuardian}
@@ -134,8 +152,12 @@ export default function OngHeader({ id }: { id: number }) {
 
           {/* Informações complementares */}
           <div className="mt-6 md:mt-0 text-right">
-            <p className="text-sm text-gray-500">Fundada em: {new Date(ong.foundationDate).toLocaleDateString()}</p>
-            <p className="text-sm text-gray-500">{ong.city} - {ong.state}</p>
+            <p className="text-sm text-gray-500">
+              Fundada em: {new Date(ong.foundationDate).toLocaleDateString()}
+            </p>
+            <p className="text-sm text-gray-500">
+              {ong.city} - {ong.state}
+            </p>
           </div>
         </div>
       </div>
@@ -143,7 +165,10 @@ export default function OngHeader({ id }: { id: number }) {
       {/* --- Modal para exibir a imagem em tela cheia (REUTILIZADO) --- */}
       {selectedImage && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div ref={modalRef} className="relative bg-white rounded-lg shadow-lg max-w-full max-h-full">
+          <div
+            ref={modalRef}
+            className="relative bg-white rounded-lg shadow-lg max-w-full max-h-full"
+          >
             {/* Botão de Fechar */}
             <button
               onClick={() => setSelectedImage(null)}
@@ -156,7 +181,10 @@ export default function OngHeader({ id }: { id: number }) {
             {/* Botão de Salvar Imagem */}
             <a
               href={selectedImage}
-              download={getFileNameFromUrl(selectedImage, ong.nameONG || "ONG_Perfil")}
+              download={getFileNameFromUrl(
+                selectedImage,
+                ong.nameONG || "ONG_Perfil"
+              )}
               className="absolute top-2 right-14 text-white bg-gray-800 rounded-full p-2 text-lg hover:bg-gray-700 z-50 flex items-center justify-center"
               aria-label="Salvar Imagem"
               title="Salvar Imagem"
@@ -181,18 +209,20 @@ export default function OngHeader({ id }: { id: number }) {
             <div
               className="overflow-hidden flex items-center justify-center"
               style={{
-                maxWidth: '90vw',
-                maxHeight: '90vh',
+                maxWidth: "90vw",
+                maxHeight: "90vh",
               }}
             >
               <img
                 ref={imageRef}
                 src={selectedImage}
                 alt={`Imagem de perfil ou capa da ONG ${ong.nameONG}`}
-                className={`max-w-full max-h-full transition-transform duration-300 ease-in-out cursor-zoom-${isZoomed ? 'out' : 'in'}`}
+                className={`max-w-full max-h-full transition-transform duration-300 ease-in-out cursor-zoom-${
+                  isZoomed ? "out" : "in"
+                }`}
                 style={{
-                  transform: isZoomed ? 'scale(1.5)' : 'scale(1)',
-                  transformOrigin: 'center center',
+                  transform: isZoomed ? "scale(1.5)" : "scale(1)",
+                  transformOrigin: "center center",
                 }}
                 onClick={handleZoomToggle}
               />

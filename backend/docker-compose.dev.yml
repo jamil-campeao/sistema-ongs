@@ -11,5 +11,26 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend_container
+    environment:
+      DATABASE_URL: "${DATABASE_URL}"
+      JWT_SECRET: "${JWT_SECRET}"
+      URL_BASE_EMAIL: "${URL_BASE_EMAIL}"
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    depends_on:
+      - postgres
+    command: >
+      sh -c "
+      npx prisma migrate deploy &&
+      npx prisma generate &&
+      node --import ./src/instrument.js --inspect=0.0.0.0:9229 server.js
+      "
+
 volumes:
   postgres_data:
