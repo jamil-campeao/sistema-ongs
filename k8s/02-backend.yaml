@@ -3,7 +3,12 @@ kind: Deployment
 metadata:
   name: backend
 spec:
-  replicas: 1
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1 # Cria 1 novo antes de matar o velho
+      maxUnavailable: 0 # Garante 100% de disponibilidade
   selector:
     matchLabels:
       app: backend
@@ -34,6 +39,21 @@ spec:
               npm start
           ports:
             - containerPort: 3001
+
+          # --- ZERO DOWNTIME ---
+          readinessProbe:
+            httpGet:
+              path: / # Verifica se a rota raiz responde
+              port: 3001
+            initialDelaySeconds: 5 # Dá 5s pro Node iniciar antes de testar
+            periodSeconds: 5 # Testa a cada 5s
+            failureThreshold: 3 # Tenta 3x antes de considerar falha
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 15
+            periodSeconds: 10
           env:
             - name: PORT
               value: "3001"
@@ -47,6 +67,12 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: jwt-secret
+            - name: URL_BASE_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: url-base-email
+
 ---
 apiVersion: v1
 kind: Service
