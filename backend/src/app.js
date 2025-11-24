@@ -42,6 +42,10 @@ app.get("/", async (req, res) => {
   res.status(200).json({ message: "API is running" });
 });
 
+app.get("/debug-error", (req, res) => {
+  throw new Error("Erro de teste para o grafana!");
+});
+
 app.use(routes);
 
 app.get("/metrics", async (req, res) => {
