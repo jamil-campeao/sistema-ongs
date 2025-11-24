@@ -43,7 +43,7 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/debug-error", (req, res) => {
-  throw new Error("Erro de teste para o grafana!");
+  res.status(500).json({ error: "Erro de teste para o grafana!" });
 });
 
 app.use(routes);
