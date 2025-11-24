@@ -9,6 +9,26 @@ import client from "prom-client";
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
 
+const httpRequestDurationMicroseconds = new client.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [0.1, 0.5, 1, 2, 5] // Buckets de tempo: 100ms, 500ms, 1s, 2s...
+});
+
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const route = req.path; 
+    
+    httpRequestDurationMicroseconds
+      .labels(req.method, route, res.statusCode.toString())
+      .observe(duration / 1000); // Converte ms para segundos
+  });
+  next();
+});
+
 app.use(express.json({ limit: "1000mb" }));
 app.use(
   cors({
