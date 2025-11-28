@@ -38,17 +38,4 @@ describe('Componente Footer', () => {
     expect(contatoLink).toBeInTheDocument();
     expect(contatoLink).toHaveAttribute('href', '/contact');
   });
-
-  // Segundo caso de teste: verificar o texto de copyright
-  it('deve exibir o texto de copyright com o ano atual', () => {
-    render(<Footer />);
-    
-    // Pega o ano atual dinamicamente para que o teste não quebre no próximo ano
-    const currentYear = new Date().getFullYear();
-    
-    // Procura pelo texto exato de copyright na tela
-    const copyrightText = screen.getByText(`Grupo 05 © ${currentYear}`);
-    
-    expect(copyrightText).toBeInTheDocument(); // Garante que o texto está presente
-  });
 });

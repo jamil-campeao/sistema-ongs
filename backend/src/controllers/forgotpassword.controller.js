@@ -25,7 +25,7 @@ export const sendEmail = async (req, res) => {
     const ong = await prisma.ongs.findUnique({ where: { emailONG: email } });
 
     if (!user && !ong) {
-      return res.status(404).json({ error: "Usuário ou ONG não encontrado" });
+      return res.status(404).json({ message: "Usuário ou ONG não encontrado" });
     }
     const role = discoverType(user);
     const codigo = geraCodigo();

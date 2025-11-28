@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "target": "ES6",
     "skipLibCheck": true,
@@ -20,15 +24,37 @@
     ],
     "baseUrl": "src",
     "paths": {
-      "@/api/*": ["app/api/*"],
-      "@/interfaces/*": ["interfaces/*"],
-      "@/components/*": ["components/*"],
-      "@/context/*": ["context/*"],
-      "@/styles/*": ["styles/*"],
+      "@/api/*": [
+        "app/api/*"
+      ],
+      "@/interfaces/*": [
+        "interfaces/*"
+      ],
+      "@/components/*": [
+        "components/*"
+      ],
+      "@/context/*": [
+        "context/*"
+      ],
+      "@/styles/*": [
+        "styles/*"
+      ],
+      "@/lib/*": [
+        "lib/*"
+      ],
       "@/utils/*": ["utils/*"],
       "@/hooks/*": ["hooks/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/services/posts.js", "src/app/manage-collaborators"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "app/services/posts.js",
+    "src/app/manage-collaborators"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
