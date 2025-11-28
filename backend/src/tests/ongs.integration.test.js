@@ -84,7 +84,16 @@ describe("Testes de Integração para as Rotas de ONGs", () => {
       const existingOngData = {
         nameONG: "Existente",
         cnpj: "44.444.444/0001-44",
-        password: "123",
+        password: "123456",
+        // Adicionando campos obrigatórios para passar na validação Zod
+        socialName: "Existente Social",
+        foundationDate: "2024-01-01",
+        area: "Social",
+        goals: "Ajudar",
+        cep: "12345-678",
+        street: "Rua Existente",
+        emailONG: "existente@ong.com",
+        nameLegalGuardian: "Responsável Existente",
       };
       prisma.ongs.findUnique.mockResolvedValue({ id: 4, ...existingOngData });
 
@@ -93,8 +102,10 @@ describe("Testes de Integração para as Rotas de ONGs", () => {
         .send(existingOngData);
 
       expect(response.status).toBe(400);
+      // O error handler retorna { status: 'fail', message: '...' } para erros 4xx
       expect(response.body).toEqual({
-        error: "Já existe uma ONG com este CNPJ",
+        status: 'fail',
+        message: "Já existe uma ONG com este CNPJ",
       });
     });
   });

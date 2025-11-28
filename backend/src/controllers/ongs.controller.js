@@ -1,495 +1,246 @@
-import bcrypt from "bcryptjs";
-import prisma from "../db/client.js";
+import * as ongService from "../services/ongs.service.js";
+import { createOngSchema, updateOngSchema } from "../schemas/ongs.schema.js";
+import AppError from "../utils/AppError.js";
 
-const isCnpjDuplicate = async (cnpj, currentOngId) => {
-    if (!cnpj) {
-        return false;
-    }
-    const existingOng = await prisma.ongs.findUnique({ where: { cnpj } });
-    return existingOng && existingOng.id !== currentOngId;
-};
-
-
-const buildUpdateData = (body) => {
-    const allowedFields = [
-        'nameONG', 'socialName', 'cnpj', 'area', 'goals', 'cep', 'street',
-        'number', 'complement', 'city', 'district', 'state', 'cellphone',
-        'socialMedia', 'nameLegalGuardian', 'cpfLegalGuardian', 'rgLegalGuardian',
-        'cellphoneLegalGuardian', 'description', 'profileImage', 'coverImage'
-    ];
-
-    const data = {};
-
-    allowedFields.forEach(field => {
-        if (body[field]) {
-            data[field] = body[field];
-        }
-    });
-
-    if (body.foundationDate) {
-        data.foundationDate = new Date(body.foundationDate);
-    }
-
-    return data;
-};
-
-export const getMe = async (req, res) => {
+export const getMe = async (req, res, next) => {
     try {
         if (req.user.tipo !== "ONG") {
-            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
+            throw new AppError("Você não tem permissão para acessar essa rota", 403);
         }
-
-        const { password, ...ongWithoutPassword } = req.user; // Remove a senha do objeto req.user
         const { id } = req.user;
-
-        const ongs = await prisma.ongs.findUnique({
-            where: { id: Number.parseInt(id) },
-            select: {
-                id: true,
-                nameONG: true,
-                emailONG: true,
-                socialName: true,
-                cnpj: true,
-                foundationDate: true,
-                area: true,
-                goals: true,
-                cep: true,
-                street: true,
-                number: true,
-                complement: true,
-                district: true,
-                state: true,
-                cellphone: true,
-                socialMedia: true,
-                nameLegalGuardian: true,
-                cpfLegalGuardian: true,
-                rgLegalGuardian: true,
-                cellphoneLegalGuardian: true,
-                description: true,
-                createdAt: true,
-                updatedAt: true,
-                projects: true,
-                tags: {
-                    select: {
-                        name: true,
-                    },
-                },
-                profileImage: true,
-                coverImage: true,
-                role: true
-            },
-        });
-
-        // Combina os dados de ongWithoutPassword com os dados de ongs
-        const combinedOngData = {
-            ...ongWithoutPassword,
-            ...ongs,
-        };
-
-        return res.status(200).json(combinedOngData);
+        const ong = await ongService.getOngById(Number.parseInt(id));
+        res.status(200).json(ong);
     } catch (error) {
-        console.error("Erro ao buscar ong /me:", error);
-        res.status(500).json({ error: "Erro ao buscar ong /me" });
+        next(error);
     }
 };
 
-export const getOngs = async (req, res) => {
+export const getOngs = async (req, res, next) => {
     try {
-        const ongs = await prisma.ongs.findMany({
-            select: {
-                id: true,
-                nameONG: true,
-                cnpj: true,
-                foundationDate: true,
-                area: true,
-                goals: true,
-                cep: true,
-                street: true,
-                number: true,
-                complement: true,
-                city: true,
-                district: true,
-                state: true,
-                cellphone: true,
-                emailONG: true,
-                socialMedia: true,
-                nameLegalGuardian: true,
-                description: true,
-                profileImage: true,
-                coverImage: true,
-                role: true
-            }
-        });
-
-        if (!ongs) {
-            return res.status(500).json({error: `Erro ao buscar ONGS`});
-        }
-
+        const ongs = await ongService.getAllOngs();
         res.status(200).json(ongs);
     } catch (error) {
-        console.error("Erro ao buscar ONGs:", error);
-        res.status(500).json({ error: `Erro ao buscar ONGs: ${error}` });
+        next(error);
     }
 };
 
-export const getOngProjects = async (req, res) => {
+export const getOngProjects = async (req, res, next) => {
     try {
-        const { id } = req.user
-
-        const projectsOng = await prisma.projects.findMany({
+        const { id } = req.user;
+        const projectsOng = await import("../db/client.js").then(m => m.default.projects.findMany({
             where: {ongId: Number.parseInt(id)}
-        })
-
+        }));
         res.status(200).json(projectsOng);
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({error: "Erro ao buscar projetos de ong"});
+        next(error);
     }
 }
 
-export const getOngByID = async (req, res) => {
+export const getOngByID = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const ong = await prisma.ongs.findUnique({
-            where: { id: Number.parseInt(id) },
-            select: {
-                id: true,
-                nameONG: true,
-                socialName: true,
-                cnpj: true,
-                foundationDate: true,
-                area: true,
-                goals: true,
-                cep: true,
-                street: true,
-                number: true,
-                complement: true,
-                city: true,
-                district: true,
-                state: true,
-                cellphone: true,
-                emailONG: true,
-                socialMedia: true,
-                nameLegalGuardian: true,
-                description: true,
-                profileImage: true,
-                coverImage: true,
-                projects: {
-                    select: {
-                        name: true,
-                        description: true,
-                        projectImage: true,
-                        complementImages: true,
-                        additionalInfo: true,
-                        contributionProject: true,
-                        id: true
-                    }
-                },
-            }
-        });
-        if (!ong) {
-            return res.status(404).json({ error: "ONG não encontrada" });
-        }
+        const ong = await ongService.getOngById(Number.parseInt(id));
         res.status(200).json(ong);
     } catch (error) {
-        console.error("Erro ao buscar ONG:", error);
-        res.status(500).json({ error: "Erro ao buscar ONG" });
+        next(error);
     }
 };
 
-export const postOng = async (req, res) => {
-    const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
-        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, password} = req.body;
+export const postOng = async (req, res, next) => {
     try {
-        const existingOng = await prisma.ongs.findUnique({ where: { cnpj } });
-        if (existingOng) {
-            return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
-        }
-        
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const data = {
-            nameONG,
-            socialName,
-            cnpj,
-            foundationDate: new Date(foundationDate),
-            area,
-            goals,
-            cep,
-            street,
-            emailONG,
-            nameLegalGuardian,
-            password: hashedPassword
+        const validation = createOngSchema.safeParse(req.body);
+        if (!validation.success) {
+            if (validation.error && validation.error.errors && validation.error.errors.length > 0) {
+                throw new AppError(validation.error.errors[0].message, 400);
+            } else {
+                 throw new AppError("Erro de validação", 400);
+            }
         }
 
-        if (number) data.number = number;
-        if (complement) data.complement = complement;
-        if (city) data.city = city;
-        if (district) data.district = district;
-        if (state) data.state = state;
-        if (cellphone) data.cellphone = cellphone;
-        if (socialMedia) data.socialMedia = socialMedia;
-        if (cpfLegalGuardian) data.cpfLegalGuardian = cpfLegalGuardian;
-        if (rgLegalGuardian) data.rgLegalGuardian = rgLegalGuardian;
-        if (description) data.description = description;
-        if (cellphoneLegalGuardian) data.cellphoneLegalGuardian = cellphoneLegalGuardian;
-
-        const newOng = await prisma.ongs.create({data});
-
-        const { password: _, updatedAt, ...ongWithoutTimestamps } = newOng;
-        res.status(201).json(ongWithoutTimestamps);
+        const newOng = await ongService.createOng(req.body);
+        res.status(201).json(newOng);
     } catch (error) {
-        res.status(500).json({ error: "Erro ao criar ONG" });
-        console.error(error);
+        next(error);
     }
 };
 
-export const putOng = async (req, res) => {
+export const putOng = async (req, res, next) => {
     try {
         if (req.user.tipo !== "ONG") {
-            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota" });
+            throw new AppError("Você não tem permissão para acessar essa rota", 403);
         }
 
         const { id } = req.user;
-        const ong = await prisma.ongs.findUnique({ where: { id: Number.parseInt(id) } });
-
-        if (!ong) {
-            return res.status(404).json({ error: "ONG não encontrada" });
+        const validation = updateOngSchema.safeParse(req.body);
+        if (!validation.success) {
+            if (validation.error && validation.error.errors && validation.error.errors.length > 0) {
+                throw new AppError(validation.error.errors[0].message, 400);
+            } else {
+                 throw new AppError("Erro de validação", 400);
+            }
         }
 
-        const { cnpj } = req.body;
-        if (await isCnpjDuplicate(cnpj, ong.id)) {
-            return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
-        }
-
-        const dataToUpdate = buildUpdateData(req.body);
-
-        if (Object.keys(dataToUpdate).length === 0) {
-            return res.status(400).json({ error: "Nenhum dado válido foi fornecido para atualização." });
-        }
-        
-        const updatedOng = await prisma.ongs.update({
-            where: { id: Number.parseInt(id) },
-            data: dataToUpdate
-        });
-
-        const { createdAt, updatedAt, updatedImages, password, ...ongResponse } = updatedOng;
-        res.status(200).json(ongResponse);
-
+        const updatedOng = await ongService.updateOng(Number.parseInt(id), req.body);
+        res.status(200).json(updatedOng);
     } catch (error) {
-        console.error("Erro ao atualizar ONG:", error);
-        res.status(500).json({ error: "Erro ao atualizar ONG" });
+        next(error);
     }
 };
 
-export const deleteOngByID = async (req, res) => {
+export const deleteOngByID = async (req, res, next) => {
     try {
         if (req.user.tipo !== "ONG") {
-            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
+            throw new AppError("Você não tem permissão para acessar essa rota", 403);
         }
-
         const { id } = req.params;
-        const ong = await prisma.ongs.findUnique({ where: { id: Number.parseInt(id) } });
-
-        if (!ong) {
-            return res.status(404).json({ error: "ONG não encontrada" });
-        }
-
-        await prisma.ongs.delete({ where: { id: Number.parseInt(id) } });
+        await ongService.deleteOng(Number.parseInt(id));
         res.status(204).send();
-
     } catch (error) {
-        console.error("Erro ao deletar ONG:", error);
-        res.status(500).json({ error: "Erro ao deletar ONG" });
+        next(error);
     }
 };
 
-export const getCNPJ = async (req, res) => {
+export const getCNPJ = async (req, res, next) => {
     try {
-        const { cnpj } = req.params
-
+        const { cnpj } = req.params;
         const response = await fetch(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`, {
             method: 'GET',
-            headers: {
-                "Content-Type": "application/json"
-            }
+            headers: { "Content-Type": "application/json" }
         });
-
         const data = await response.json();
-
         res.status(200).json(data);
     } catch (error) {
-        console.error("Erro ao consultar dados de CNPJ:", error);
-        return res.status(500).json({message: `Erro ao consultar dados de CNPJ: ${error}`});
+        next(new AppError(`Erro ao consultar dados de CNPJ: ${error.message}`, 500));
     }
 };
 
-export const PutPasswordOng = async (req, res) => {
+export const PutPasswordOng = async (req, res, next) => {
     try {
         if (req.user.tipo !== "ONG") {
-            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
+            throw new AppError("Você não tem permissão para acessar essa rota", 403);
         }
-
         const { email, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const ong = await prisma.ongs.update({
-            where: { emailONG: email },
-            data: { password: hashedPassword }
-        })
+        await ongService.updatePassword(email, password);
+        res.status(200).json({ message: "Senha atualizada com sucesso" });
+    } catch (error) {
+        next(error);
+    }
+};
 
-        if (!ong) {
-            return res.status(404).json( { message: "ONG não encontrada" });
+export const PostInviteUserToONG = async (req, res, next) => {
+    try {
+        const { id: ongId, tipo: ongLogadaTipo } = req.user;
+        const { userId } = req.body;
+
+        if (ongLogadaTipo !== "ONG") {
+            throw new AppError("Apenas ONG pode acessar esse recurso.", 403);
+        }
+        if (!userId) {
+            throw new AppError("ID do usuário a ser convidado não informado.", 400);
         }
 
-        res.status(200).json( { message: "Senha atualizada com sucesso"});
-    }
-    catch (error) {
-        console.error("Erro ao atualizar senha:", error);
-        res.status(500).json({ message: "Erro ao atualizar senha"});
-    }
-}
+        const prisma = (await import("../db/client.js")).default;
 
-export const PostInviteUserToONG = async (req, res) => {
-    // A ONG logada (que está enviando o convite) vem de req.user
-    const { id: ongId, tipo: ongLogadaTipo } = req.user;
-    const { userId } = req.body;
-
-    // Validações de segurança
-    if (ongLogadaTipo !== "ONG") {
-        return res.status(403).json({ error: "Apenas ONG pode acessar esse recurso." });
-    }
-    if (!userId) {
-        return res.status(400).json({ error: "ID do usuário a ser convidado não informado." });
-    }
-
-    try {
-        // 1. Validar se o usuário existe e não está associado a NENHUMA ONG
         const targetUser = await prisma.users.findUnique({
             where: { id: userId },
             select: { id: true, ongId: true, role: true }
         });
 
         if (!targetUser) {
-            return res.status(404).json({ message: "Usuário convidado não encontrado." });
+            throw new AppError("Usuário convidado não encontrado.", 404);
         }
         if (targetUser.ongId) {
-            return res.status(409).json({ message: "Usuário já está associado a outra ONG." });
+            throw new AppError("Usuário já está associado a outra ONG.", 409);
         }
-        // Validar se a role do usuário é "Colaborador"
         if (targetUser.role !== 'COLLABORATOR') {
-             return res.status(403).json({ message: "Apenas usuários colaboradores podem ser convidados." });
+             throw new AppError("Apenas usuários colaboradores podem ser convidados.", 403);
         }
 
-        // 2. Validar se já existe um convite PENDENTE ou ACEITO para este usuário e esta ONG
         const existingInvite = await prisma.associateUserONG.findFirst({
             where: {
                 userId: userId,
                 ongId: ongId,
-                status: {
-                    in: ['INVITE_PENDING_ONG_TO_USER', 'ACCEPTED'] // Já convidado ou já aceito
-                }
+                status: { in: ['INVITE_PENDING_ONG_TO_USER', 'ACCEPTED'] }
             }
         });
 
         if (existingInvite && existingInvite.status === 'ACCEPTED') {
-            return res.status(409).json({ message: "Este usuário já é um colaborador desta ONG." });
+            throw new AppError("Este usuário já é um colaborador desta ONG.", 409);
         }
         if (existingInvite && existingInvite.status === 'INVITE_PENDING_ONG_TO_USER') {
-            return res.status(409).json({ message: "Um convite de uma ONG já foi encaminhada para esta usuário e está pendente." });
+            throw new AppError("Um convite de uma ONG já foi encaminhada para esta usuário e está pendente.", 409);
         }
 
-        // 3. Criar o novo convite
         const newInvite = await prisma.associateUserONG.create({
             data: {
                 userId: userId,
                 ongId: ongId,
-                status: 'INVITE_PENDING_ONG_TO_USER' // Status: Convite enviado da ONG
+                status: 'INVITE_PENDING_ONG_TO_USER'
             },
             include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    }
-                }
+                user: { select: { id: true, name: true, email: true } }
             },
         });
 
         res.status(201).json({ message: "Convite enviado e registrado com sucesso!", inviteId: newInvite.id });
 
     } catch (error) {
-        console.error("Erro ao enviar convite para usuário:", error);
-        res.status(500).json({ message: "Erro interno ao enviar convite." });
+        next(error);
     }
 };
 
-export const getAllOngUserRelations = async (req, res) => {
-    const {id, tipo: ongLogadaTipo } = req.user;
-
-    if (ongLogadaTipo !== "ONG") {
-        return res.status(403).json({ error: "Acesso negado: Você não tem permissão para ver estas relações." });
-    }
-
+export const getAllOngUserRelations = async (req, res, next) => {
     try {
+        const {id, tipo: ongLogadaTipo } = req.user;
+
+        if (ongLogadaTipo !== "ONG") {
+            throw new AppError("Acesso negado: Você não tem permissão para ver estas relações.", 403);
+        }
+
+        const prisma = (await import("../db/client.js")).default;
         const relations = await prisma.associateUserONG.findMany({
-            where: {
-                ongId: id
-            },
+            where: { ongId: id },
             include: {
-                user: {
-                    select: { id: true, name: true, email: true }
-                }
+                user: { select: { id: true, name: true, email: true } }
             }
         });
         res.status(200).json(relations);
     } catch (error) {
-        console.error("Erro ao buscar todas as relações da ONG:", message);
-        res.status(500).json({ message: "Erro interno ao buscar relações." });
+        next(error);
     }
 };
 
-export const getProjectVolunteerRequestsForOng = async (req, res) => {
-    const { id: ongId } = req.params;
-
-    const parsedOngId = Number.parseInt(ongId)
- 
+export const getProjectVolunteerRequestsForOng = async (req, res, next) => {
     try {
-        // 1. Encontro todos os projetos que pertencem a esta ONG logada
+        const { id: ongId } = req.params;
+        const parsedOngId = Number.parseInt(ongId);
+        
+        const prisma = (await import("../db/client.js")).default;
+
         const projectsOfOng = await prisma.projects.findMany({
             where: {  ongId: parsedOngId },
-            select: { id: true } // Seleciona apenas o ID do projeto
+            select: { id: true }
         });
 
-        // Extraio os IDs dos projetos para usar na próxima consulta
         const projectIds = projectsOfOng.map(p => p.id);
 
-        // Se a ONG não tem projetos cadastrados, não haverá solicitações para listar
         if (projectIds.length === 0) {
-            return res.status(200).json([]); // Retorno um array vazio
+            return res.status(200).json([]);
         }
 
-        // 2. Encontro todas as solicitações de voluntariado para ESTES projetos
         const requests = await prisma.userAssociateProject.findMany({
             where: {
-                projectId: {
-                    in: projectIds // Filtro as solicitações pelos IDs dos projetos da ONG
-                }
+                projectId: { in: projectIds }
             },
-            include: { // Incluo os dados do Usuário (Voluntário) e do Projeto para o frontend
-                user: {
-                    select: { id: true, name: true, email: true } // Campos do voluntário
-                },
-                project: {
-                    select: { id: true, name: true } // Campos do projeto
-                }
+            include: {
+                user: { select: { id: true, name: true, email: true } },
+                project: { select: { id: true, name: true } }
             }
         });
 
         res.status(200).json(requests);
     } catch (error) {
-        console.error("Erro ao buscar solicitações de voluntariado para ONG:", error);
-        res.status(500).json({ error: "Erro interno ao buscar solicitações de voluntariado." });
+        next(error);
     }
 };

@@ -46,6 +46,8 @@ app.get("/debug-error", (req, res) => {
   res.status(500).json({ error: "Erro de teste para o grafana!" });
 });
 
+import errorHandler from "./middlewares/errorHandler.js";
+
 app.use(routes);
 
 app.get("/metrics", async (req, res) => {
@@ -58,5 +60,7 @@ app.get("/metrics", async (req, res) => {
 });
 
 Sentry.setupExpressErrorHandler(app);
+
+app.use(errorHandler);
 
 export default app;
