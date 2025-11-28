@@ -105,7 +105,7 @@ describe("Testes de Integração para as Rotas de ONGs", () => {
       // O error handler retorna { status: 'fail', message: '...' } para erros 4xx
       expect(response.body).toEqual({
         status: 'fail',
-        message: "Já existe uma ONG com este CNPJ",
+        message: "ONG já cadastrada",
       });
     });
   });

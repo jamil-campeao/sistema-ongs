@@ -2,9 +2,14 @@ import prisma from "../db/client.js";
 import bcrypt from "bcryptjs";
 import AppError from "../utils/AppError.js";
 
+export const getOngByCnpj = async (cnpj) => {
+    if (!cnpj) return null;
+    return await prisma.ongs.findUnique({ where: { cnpj } });
+};
+
 const isCnpjDuplicate = async (cnpj, currentOngId = null) => {
     if (!cnpj) return false;
-    const existingOng = await prisma.ongs.findUnique({ where: { cnpj } });
+    const existingOng = await getOngByCnpj(cnpj);
     return existingOng && existingOng.id !== currentOngId;
 };
 

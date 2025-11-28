@@ -1,16 +1,11 @@
 // src/controllers/ongs.controller.test.js
 import { getOngByID, postOng } from './ongs.controller.js';
-import prisma from '../db/client.js';
-import bcrypt from 'bcryptjs';
+import * as ongService from '../services/ongs.service.js';
 
-// Mockando o bcrypt para não precisar gerar hashes reais nos testes
-vi.mock('bcryptjs', () => ({
-  default: {
-    hash: vi.fn().mockResolvedValue('senha_hasheada_mock'),
-  },
-}));
+// Mockando o serviço
+vi.mock('../services/ongs.service.js');
 
-// Limpa os mocks antes de cada teste para garantir que um teste não interfira no outro
+// Limpa os mocks antes de cada teste
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -20,19 +15,18 @@ describe('Controlador de ONGs', () => {
   // --- Testes para postOng ---
   describe('POST /ongs', () => {
     it('deve criar uma nova ONG e retornar status 201', async () => {
-      // 1. Arrange (Organizar)
+      // 1. Arrange
       const mockOngData = {
         nameONG: "ONG de Teste",
-        socialName: "Razão Social Teste",
         cnpj: "00.000.000/0001-00",
+        password: "senha_forte_123",
         foundationDate: "2023-01-01",
         area: "Meio Ambiente",
-        goals: "Plantar árvores",
+        goals: "Salvar o planeta",
         cep: "12345-678",
-        street: "Rua dos Testes",
+        street: "Rua das Flores",
         emailONG: "contato@ongteste.com",
-        nameLegalGuardian: "Responsável Teste",
-        password: "senha_forte_123"
+        nameLegalGuardian: "João Silva"
       };
 
       const mockReq = { body: mockOngData };
@@ -40,34 +34,53 @@ describe('Controlador de ONGs', () => {
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),
       };
+      const mockNext = vi.fn();
 
-      // Simula que o CNPJ ainda não existe
-      prisma.ongs.findUnique.mockResolvedValue(null);
-      // Simula a criação da ONG, retornando o dado mockado sem a senha
-      const { password, ...ongSemSenha } = mockOngData;
-      prisma.ongs.create.mockResolvedValue(ongSemSenha);
+      // Simula que o CNPJ não existe
+      ongService.getOngByCnpj.mockResolvedValue(null);
+      // Simula a criação
+      ongService.createOng.mockResolvedValue({ ...mockOngData, id: 1 });
 
-      // 2. Act (Agir)
-      await postOng(mockReq, mockRes);
+      // 2. Act
+      await postOng(mockReq, mockRes, mockNext);
 
-      // 3. Assert (Verificar)
-      expect(prisma.ongs.create).toHaveBeenCalled();
+      // 3. Assert
+      expect(ongService.createOng).toHaveBeenCalledWith(mockOngData);
       expect(mockRes.status).toHaveBeenCalledWith(201);
-      expect(mockRes.json).toHaveBeenCalledWith(ongSemSenha);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ nameONG: "ONG de Teste" }));
     });
 
     it('deve retornar erro 400 se um CNPJ já existir', async () => {
-      const mockReq = { body: { cnpj: "00.000.000/0001-00" } };
+      const mockReq = { 
+        body: { 
+          cnpj: "00.000.000/0001-00",
+          nameONG: "ONG Duplicada",
+          password: "senha_forte_123",
+          foundationDate: "2023-01-01",
+          area: "Meio Ambiente",
+          goals: "Salvar o planeta",
+          cep: "12345-678",
+          street: "Rua das Flores",
+          emailONG: "duplicada@ongteste.com",
+          nameLegalGuardian: "Maria Silva"
+        } 
+      };
       const mockRes = {
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),
       };
-      prisma.ongs.findUnique.mockResolvedValue({ id: 1, cnpj: "00.000.000/0001-00" });
+      const mockNext = vi.fn();
 
-      await postOng(mockReq, mockRes);
+      // Simula que o CNPJ JÁ existe
+      ongService.getOngByCnpj.mockResolvedValue({ id: 1, cnpj: "00.000.000/0001-00" });
 
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: "Já existe uma ONG com este CNPJ" });
+      await postOng(mockReq, mockRes, mockNext);
+
+      // O controller deve chamar next(error)
+      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
+      const errorArg = mockNext.mock.calls[0][0];
+      expect(errorArg.message).toBe("ONG já cadastrada");
+      expect(errorArg.statusCode).toBe(400);
     });
   });
 
@@ -75,17 +88,18 @@ describe('Controlador de ONGs', () => {
   describe('GET /ongs/:id', () => {
     it('deve retornar uma ONG e status 200 se o ID for encontrado', async () => {
       const mockOng = { id: 1, nameONG: 'ONG Encontrada' };
-      prisma.ongs.findUnique.mockResolvedValue(mockOng);
+      ongService.getOngById.mockResolvedValue(mockOng);
 
       const mockReq = { params: { id: '1' } };
       const mockRes = {
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),
       };
+      const mockNext = vi.fn();
 
-      await getOngByID(mockReq, mockRes);
+      await getOngByID(mockReq, mockRes, mockNext);
 
-      expect(prisma.ongs.findUnique).toHaveBeenCalledWith({ where: { id: 1 }, select: expect.any(Object) });
+      expect(ongService.getOngById).toHaveBeenCalledWith(1);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockOng);
     });

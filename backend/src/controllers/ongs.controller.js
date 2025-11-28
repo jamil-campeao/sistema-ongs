@@ -57,9 +57,13 @@ export const postOng = async (req, res, next) => {
                  throw new AppError("Erro de validação", 400);
             }
         }
+        const ongExists = await ongService.getOngByCnpj(req.body.cnpj);
+        if (ongExists) {
+            throw new AppError("ONG já cadastrada", 400);
+        }
 
         const newOng = await ongService.createOng(req.body);
-        res.status(201).json(newOng);
+        return res.status(201).json(newOng);
     } catch (error) {
         next(error);
     }
