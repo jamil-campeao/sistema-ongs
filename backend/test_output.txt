@@ -1,0 +1,58 @@
+﻿
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/temp/vscode/sistema-ongs/backend[39m
+
+[90mstdout[2m | src/tests/ongs.integration.test.js[2m > [22m[2mTestes de Integra├º├úo para as Rotas de ONGs[2m > [22m[2mPOST /api/v1/ongs[2m > [22m[2mdeve criar uma nova ONG e retornar status 201
+[22m[39mValidation result: {
+  "success": true,
+  "data": {
+    "nameONG": "Nova ONG",
+    "socialName": "Nova ONG Social",
+    "cnpj": "33.333.333/0001-33",
+    "foundationDate": "2024-01-01",
+    "area": "Social",
+    "goals": "Ajudar",
+    "cep": "12345-678",
+    "street": "Rua Nova",
+    "emailONG": "nova@ong.com",
+    "nameLegalGuardian": "Respons├ível Novo",
+    "password": "senha_valida"
+  }
+}
+
+[90mstdout[2m | src/tests/ongs.integration.test.js[2m > [22m[2mTestes de Integra├º├úo para as Rotas de ONGs[2m > [22m[2mPOST /api/v1/ongs[2m > [22m[2mdeve retornar erro 400 se o CNPJ j├í existir
+[22m[39mValidation result: {
+  "success": false,
+  "error": {
+    "name": "ZodError",
+    "message": "[\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 6,\n    \"inclusive\": true,\n    \"path\": [\n      \"password\"\n    ],\n    \"message\": \"A senha deve ter no m├¡nimo 6 caracteres\"\n  }\n]"
+  }
+}
+Error caught: AppError: Erro de valida├º├úo desconhecido
+    at postOng [90m(C:\temp\vscode\sistema-ongs\backend\[39msrc\controllers\ongs.controller.js:59:24[90m)[39m
+    at Layer.handle [as handle_request] [90m(C:\temp\vscode\sistema-ongs\backend\[39mnode_modules\[4mexpress[24m\lib\router\layer.js:95:5[90m)[39m
+    at next [90m(C:\temp\vscode\sistema-ongs\backend\[39mnode_modules\[4mexpress[24m\lib\router\route.js:149:13[90m)[39m
+    at Route.dispatch [90m(C:\temp\vscode\sistema-ongs\backend\[39mnode_modules\[4mexpress[24m\lib\router\route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(C:\temp\vscode\sistema-ongs\backend\[39mnode_modules\[4mexpress[24m\lib\router\layer.js:95:5[90m)[39m
+    at [90mC:\temp\vscode\sistema-ongs\backend\[39mnode_modules\[4mexpress[24m\lib\router\index.js:284:15
+    at Function.process_params [90m(C:\temp\vscode\sistema-ongs\backend\[39mnode_modules\[4mexpress[24m\lib\router\index.js:346:12[90m)[39m
+    at next [90m(C:\temp\vscode\sistema-ongs\backend\[39mnode_modules\[4mexpress[24m\lib\router\index.js:280:10[90m)[39m
+    at Function.handle [90m(C:\temp\vscode\sistema-ongs\backend\[39mnode_modules\[4mexpress[24m\lib\router\index.js:175:3[90m)[39m
+    at router [90m(C:\temp\vscode\sistema-ongs\backend\[39mnode_modules\[4mexpress[24m\lib\router\index.js:47:12[90m)[39m {
+  statusCode: [33m400[39m,
+  status: [32m'fail'[39m,
+  isOperational: [33mtrue[39m
+}
+Is AppError? AppError
+Is Operational? [33mtrue[39m
+
+ [31mÔØ»[39m src/tests/ongs.integration.test.js [2m([22m[2m3 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 359[2mms[22m[39m
+   [32mÔ£ô[39m Testes de Integra├º├úo para as Rotas de ONGs[2m > [22mGET /api/v1/ongs[2m > [22mdeve retornar uma lista de ONGs e status 200[32m 116[2mms[22m[39m
+   [32mÔ£ô[39m Testes de Integra├º├úo para as Rotas de ONGs[2m > [22mPOST /api/v1/ongs[2m > [22mdeve criar uma nova ONG e retornar status 201[32m 88[2mms[22m[39m
+[31m   [31m├ù[31m Testes de Integra├º├úo para as Rotas de ONGs[2m > [22mPOST /api/v1/ongs[2m > [22mdeve retornar erro 400 se o CNPJ j├í existir[39m[32m 150[2mms[22m[39m
+[31m     ÔåÆ expected { status: 'fail', ÔÇª(3) } to deeply equal { status: 'fail', ÔÇª(1) }[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 08:18:06
+[2m   Duration [22m 9.71s[2m (transform 770ms, setup 113ms, collect 6.64s, tests 359ms, environment 30ms, prepare 863ms)[22m
+

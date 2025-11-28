@@ -25,11 +25,14 @@ services:
       - "9229:9229"
     depends_on:
       - postgres
+    volumes:
+      - ./:/app
+      - /app/node_modules
     command: >
       sh -c "
       npx prisma migrate deploy &&
       npx prisma generate &&
-      node --import ./src/instrument.js --inspect=0.0.0.0:9229 server.js
+      npm run start:dev
       "
 
 volumes:

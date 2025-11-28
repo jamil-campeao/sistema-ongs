@@ -41,7 +41,9 @@
       ],
       "@/lib/*": [
         "lib/*"
-      ]
+      ],
+      "@/utils/*": ["utils/*"],
+      "@/hooks/*": ["hooks/*"]
     }
   },
   "include": [

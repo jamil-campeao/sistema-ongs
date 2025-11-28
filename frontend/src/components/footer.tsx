@@ -24,7 +24,7 @@ export default function Footer() {
                     </Link>
                 </div>
                 <div className="text-center mt-4 text-xs text-gray-500">
-                    <p><a href="https://github.com/jamil-campeao" target="_blank" rel="noopener noreferrer">Jamil Luiz da Silva Campeão</a> © {new Date().getFullYear()}</p>
+                    <p>Colabora © {new Date().getFullYear()}</p>
                 </div>
             </div>
         </footer>

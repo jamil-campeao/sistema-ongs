@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Footer from "../../components/footer";
-import { validaCNPJ } from "../functions.js";
+import { validaCNPJ } from "../../utils/validators";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
