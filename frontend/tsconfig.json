@@ -24,7 +24,9 @@
       "@/interfaces/*": ["interfaces/*"],
       "@/components/*": ["components/*"],
       "@/context/*": ["context/*"],
-      "@/styles/*": ["styles/*"]
+      "@/styles/*": ["styles/*"],
+      "@/utils/*": ["utils/*"],
+      "@/hooks/*": ["hooks/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/services/posts.js", "src/app/manage-collaborators"],
